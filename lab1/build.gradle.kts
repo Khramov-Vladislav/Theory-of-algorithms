@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    application
 }
 
 group = "ru.spbstu.khramov"
@@ -9,12 +10,20 @@ repositories {
     mavenCentral()
 }
 
+application {
+    mainClass = "ru.spbstu.khramov.Main"
+}
+
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:6.0.0"))
+    testImplementation(platform("org.junit:junit-bom:5.11.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.run {
+    standardInput = System.`in`
 }
