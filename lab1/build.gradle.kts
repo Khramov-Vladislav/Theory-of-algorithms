@@ -27,3 +27,9 @@ tasks.test {
 tasks.run {
     standardInput = System.`in`
 }
+
+// Пакетные эксперименты: ./gradlew experiments --args="periods 12 100 100000"
+tasks.register<JavaExec>("experiments") {
+    mainClass = "ru.spbstu.khramov.Experiments"
+    classpath = sourceSets["main"].runtimeClasspath
+}

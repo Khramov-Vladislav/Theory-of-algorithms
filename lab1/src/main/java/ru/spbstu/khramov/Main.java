@@ -2,24 +2,12 @@ package ru.spbstu.khramov;
 
 import static java.lang.IO.*;
 
-/**
- * Консольный интерфейс клеточного автомата: ввод параметров и начальных условий,
- * запуск итераций, вывод поля и итогов (предпериод, период).
- */
 public class Main {
-	/**
-	 * Класс содержит только статические методы, создавать его объекты не нужно.
-	 */
 	private Main() {
 	}
 
-	/**
-	 * Точка входа: спрашивает ширину поля, число итераций, начальные условия и режим вывода,
-	 * затем выполняет итерации и печатает итог.
-	 *
-	 */
 	static void main() {
-		println("=== Двумерный клеточный автомат (окрестность фон Неймана, тор) ===");
+		println("Двумерный клеточный автомат");
 		println();
 
 		int size = readInt("Ширина поля (3..100)", 3, 100, 20);
@@ -39,7 +27,6 @@ public class Main {
 			automaton.step();
 			boolean cycleJustFound = !hadCycle && automaton.isCycleFound();
 
-			// печатаем каждое k-е поколение, последнее и то, на котором найден цикл
 			if (i % printEvery == 0 || i == iterations || cycleJustFound) {
 				printGeneration(automaton);
 			}
@@ -51,14 +38,6 @@ public class Main {
 		printSummary(automaton);
 	}
 
-	// ---------------- вывод ----------------
-
-	/**
-	 * Печатает заголовок поколения (номер, число живых клеток, данные о цикле, если он найден)
-	 * и само поле.
-	 *
-	 * @param automaton автомат
-	 */
 	static void printGeneration(CellularAutomaton automaton) {
 		String header = "Поколение " + automaton.getGeneration() + " | живых: " + automaton.population();
 		if (automaton.isCycleFound()) {
@@ -68,15 +47,9 @@ public class Main {
 		printField(automaton);
 	}
 
-	/**
-	 * Печатает итог работы: число выполненных итераций, число живых клеток,
-	 * предпериод и период цикла (или сообщение, что цикл не найден).
-	 *
-	 * @param automaton автомат
-	 */
 	static void printSummary(CellularAutomaton automaton) {
 		int size = automaton.getSize();
-		println("=== Итог ===");
+		println("Итог");
 		println("Выполнено итераций: " + automaton.getGeneration());
 		println("Живых клеток: " + automaton.population() + " из " + size * size);
 		if (automaton.isCycleFound()) {
@@ -90,14 +63,6 @@ public class Main {
 		}
 	}
 
-	// ---------------- начальные условия ----------------
-
-	/**
-	 * Показывает меню начальных условий и заполняет поле выбранным способом:
-	 * случайно, вручную, одна клетка в центре или пустое поле.
-	 *
-	 * @param automaton автомат, поле которого заполняется
-	 */
 	static void initField(CellularAutomaton automaton) {
 		println();
 		println("Начальные условия:");
@@ -122,11 +87,6 @@ public class Main {
 		}
 	}
 
-	/**
-	 * Читает seed. Пустой ввод — seed генерируется и печатается, чтобы эксперимент можно было повторить.
-	 *
-	 * @return seed для генератора случайных чисел
-	 */
 	static long readSeed() {
 		while (true) {
 			String s = readLine("Seed (пусто = случайный): ");
@@ -143,20 +103,12 @@ public class Main {
 		}
 	}
 
-	/**
-	 * Ручной ввод: строки поля сверху вниз, '#' или '1' — живая клетка, остальное — мёртвая.
-	 * Короткая строка дополняется мёртвыми клетками, лишние символы игнорируются,
-	 * пустая строка завершает ввод.
-	 *
-	 * @param automaton автомат, поле которого заполняется (предварительно очищается)
-	 */
 	static void readManual(CellularAutomaton automaton) {
 		int size = automaton.getSize();
 		println("Вводите строки поля сверху вниз (до " + size + " строк).");
 		println("Живая клетка: # или 1, мёртвая: . или 0. Пустая строка — закончить ввод.");
 		automaton.clear();
 		for (int row = 0; row < size; row++) {
-			// без trim(): ведущие пробелы/точки — это мёртвые клетки, их нельзя срезать
 			String line = readln(String.format("%3d> ", row));
 			if (line == null || line.isBlank()) {
 				break;
@@ -168,18 +120,6 @@ public class Main {
 		}
 	}
 
-	// ---------------- ввод с проверкой ----------------
-
-	/**
-	 * Спрашивает целое число, пока не введут корректное значение из [min, max].
-	 * Пустой ввод — значение по умолчанию def.
-	 *
-	 * @param prompt подсказка для пользователя
-	 * @param min    минимальное допустимое значение
-	 * @param max    максимальное допустимое значение
-	 * @param def    значение по умолчанию (при пустом вводе)
-	 * @return введённое число из [min, max] или def
-	 */
 	static int readInt(String prompt, int min, int max, int def) {
 		while (true) {
 			String s = readLine(prompt + " [" + def + "]: ");
@@ -192,29 +132,16 @@ public class Main {
 					return value;
 				}
 			} catch (NumberFormatException ignored) {
-				// не число — переспросим ниже
 			}
 			println("  Введите целое число от " + min + " до " + max + ".");
 		}
 	}
 
-	/**
-	 * Читает строку без пробелов по краям. Если ввод закончился (EOF), возвращает пустую строку,
-	 * т.е. будет взято значение по умолчанию.
-	 *
-	 * @param prompt подсказка для пользователя
-	 * @return введённая строка без пробелов по краям (пустая при EOF)
-	 */
 	static String readLine(String prompt) {
 		String s = readln(prompt);
 		return s == null ? "" : s.trim();
 	}
 
-	/**
-	 * Печатает поле построчно: '#' — живая клетка, '.' — мёртвая; после поля — пустая строка.
-	 *
-	 * @param automaton автомат
-	 */
 	static void printField(CellularAutomaton automaton) {
 		for (int row = 0; row < automaton.getSize(); row++) {
 			for (int col = 0; col < automaton.getSize(); col++) {
