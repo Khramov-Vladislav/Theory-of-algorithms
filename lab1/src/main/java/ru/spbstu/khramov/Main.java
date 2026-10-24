@@ -10,8 +10,8 @@ public class Main {
 		println("Двумерный клеточный автомат");
 		println();
 
-		int size = readInt("Ширина поля (3..100)", 3, 100, 20);
-		int iterations = readInt("Количество итераций (1..100000)", 1, 100_000, 10);
+		int size = readInt("Ширина поля (3...100)", 3, 100, 20);
+		int iterations = readInt("Количество итераций (1...100000)", 1, 100_000, 10);
 
 		CellularAutomaton automaton = new CellularAutomaton(43, 11, 2006, 11, 2, size);
 		initField(automaton);
@@ -74,7 +74,7 @@ public class Main {
 
 		switch (mode) {
 			case 1 -> {
-				int percent = readInt("Плотность живых клеток, % (0..100)", 0, 100, 30);
+				int percent = readInt("Плотность живых клеток, % (0...100)", 0, 100, 50);
 				long seed = readSeed();
 				automaton.randomize(percent / 100.0, seed);
 			}
@@ -106,7 +106,7 @@ public class Main {
 	static void readManual(CellularAutomaton automaton) {
 		int size = automaton.getSize();
 		println("Вводите строки поля сверху вниз (до " + size + " строк).");
-		println("Живая клетка: # или 1, мёртвая: . или 0. Пустая строка — закончить ввод.");
+		println("Живая клетка: + или 1, мёртвая: . или 0. Пустая строка — закончить ввод.");
 		automaton.clear();
 		for (int row = 0; row < size; row++) {
 			String line = readln(String.format("%3d> ", row));
@@ -115,7 +115,7 @@ public class Main {
 			}
 			for (int col = 0; col < Math.min(line.length(), size); col++) {
 				char ch = line.charAt(col);
-				automaton.setCell(row, col, ch == '#' || ch == '1');
+				automaton.setCell(row, col, ch == '+' || ch == '1');
 			}
 		}
 	}
@@ -145,7 +145,7 @@ public class Main {
 	static void printField(CellularAutomaton automaton) {
 		for (int row = 0; row < automaton.getSize(); row++) {
 			for (int col = 0; col < automaton.getSize(); col++) {
-				print(automaton.getCell(row, col) ? "# " : ". ");
+				print(automaton.getCell(row, col) ? "+ " : ". ");
 			}
 			println();
 		}
