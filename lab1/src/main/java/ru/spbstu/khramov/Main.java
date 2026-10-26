@@ -145,7 +145,7 @@ public class Main {
 	static void printField(CellularAutomaton automaton) {
 		for (int row = 0; row < automaton.getSize(); row++) {
 			for (int col = 0; col < automaton.getSize(); col++) {
-				print(automaton.getCell(row, col) ? "+ " : ". ");
+				print(automaton.getCell(row, col) ? "+ " : "  ");
 			}
 			println();
 		}
