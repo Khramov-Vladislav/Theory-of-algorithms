@@ -1,0 +1,1045 @@
+\documentclass[a4paper,14pt]{extarticle}
+
+% ---------------- кодировки и язык ----------------
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+
+% ---------------- поля, интервалы, отступы ----------------
+\usepackage[left=30mm,right=15mm,top=20mm,bottom=20mm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{indentfirst}
+\setlength{\parindent}{1.25cm}
+
+% ---------------- математика, таблицы, списки ----------------
+\usepackage{amsmath,amssymb}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\setlist{nosep}
+
+% ---------------- рисунки и графики ----------------
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\graphicspath{{img/}}
+
+% ---------------- заголовки ----------------
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\Large}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize}{\thesubsubsection}{1em}{}
+
+% ---------------- подписи ----------------
+\usepackage{caption}
+\captionsetup{labelsep=colon}
+\addto\captionsrussian{%
+	\renewcommand{\figurename}{Рис.}%
+	\renewcommand{\tablename}{Таблица}%
+	\renewcommand{\contentsname}{Содержание}%
+	\renewcommand{\refname}{Список литературы}%
+}
+
+% ---------------- листинги ----------------
+\usepackage{xcolor}
+\usepackage{listings}
+\renewcommand{\lstlistingname}{Листинг}
+\lstset{
+	language=Java,
+	basicstyle=\footnotesize\ttfamily,
+	keywordstyle=\color{blue},
+	stringstyle=\color{red},
+	commentstyle=\color{green!50!black},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	numbersep=6pt,
+	backgroundcolor=\color{gray!5},
+	frame=single,
+	rulecolor=\color{gray!30},
+	tabsize=4,
+	breaklines=true,
+	showstringspaces=false,
+	captionpos=b,
+	extendedchars=true,
+	inputencoding=utf8,
+	literate=
+		{а}{{\cyra}}1 {А}{{\CYRA}}1 {б}{{\cyrb}}1 {Б}{{\CYRB}}1 {в}{{\cyrv}}1 {В}{{\CYRV}}1
+		{г}{{\cyrg}}1 {Г}{{\CYRG}}1 {д}{{\cyrd}}1 {Д}{{\CYRD}}1 {е}{{\cyre}}1 {Е}{{\CYRE}}1
+		{ё}{{\cyryo}}1 {Ё}{{\CYRYO}}1 {ж}{{\cyrzh}}1 {Ж}{{\CYRZH}}1 {з}{{\cyrz}}1 {З}{{\CYRZ}}1
+		{и}{{\cyri}}1 {И}{{\CYRI}}1 {й}{{\cyrishrt}}1 {Й}{{\CYRISHRT}}1 {к}{{\cyrk}}1 {К}{{\CYRK}}1
+		{л}{{\cyrl}}1 {Л}{{\CYRL}}1 {м}{{\cyrm}}1 {М}{{\CYRM}}1 {н}{{\cyrn}}1 {Н}{{\CYRN}}1
+		{о}{{\cyro}}1 {О}{{\CYRO}}1 {п}{{\cyrp}}1 {П}{{\CYRP}}1 {р}{{\cyrr}}1 {Р}{{\CYRR}}1
+		{с}{{\cyrs}}1 {С}{{\CYRS}}1 {т}{{\cyrt}}1 {Т}{{\CYRT}}1 {у}{{\cyru}}1 {У}{{\CYRU}}1
+		{ф}{{\cyrf}}1 {Ф}{{\CYRF}}1 {х}{{\cyrh}}1 {Х}{{\CYRH}}1 {ц}{{\cyrc}}1 {Ц}{{\CYRC}}1
+		{ч}{{\cyrch}}1 {Ч}{{\CYRCH}}1 {ш}{{\cyrsh}}1 {Ш}{{\CYRSH}}1 {щ}{{\cyrshch}}1 {Щ}{{\CYRSHCH}}1
+		{ъ}{{\cyrhrdsn}}1 {Ъ}{{\CYRHRDSN}}1 {ы}{{\cyrery}}1 {Ы}{{\CYRERY}}1 {ь}{{\cyrsftsn}}1 {Ь}{{\CYRSFTSN}}1
+		{э}{{\cyrerev}}1 {Э}{{\CYREREV}}1 {ю}{{\cyryu}}1 {Ю}{{\CYRYU}}1 {я}{{\cyrya}}1 {Я}{{\CYRYA}}1
+		{—}{{\textemdash}}1 {→}{{$\to$}}1 {«}{{<<}}1 {»}{{>>}}1
+}
+
+% ---------------- ссылки ----------------
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	citecolor=green!60!black,
+	urlcolor=blue,
+	pdftitle={Отчет по лабораторной работе №1},
+	pdfauthor={Храмов В.Д.}
+}
+
+% Поколение автомата в консольном виде (как печатает программа): файл figures/<имя>.txt.
+% Ширина символа моноширинного шрифта 0.525em, клетка "# " = 1.05em, поэтому межстрочный
+% интервал 1.05 размера шрифта делает клетки квадратными.
+\lstdefinestyle{console}{
+	language={}, numbers=none, frame=single, rulecolor=\color{gray!50},
+	backgroundcolor=\color{gray!5}, framesep=2pt, xleftmargin=2pt, xrightmargin=2pt,
+	breaklines=false, columns=fullflexible, keepspaces=true
+}
+\newcommand{\consolemedium}{\fontsize{9}{10.5}\selectfont\ttfamily}
+\newcommand{\consolesmall}{\fontsize{7}{7.35}\selectfont\ttfamily}
+\newcommand{\consoletiny}{\fontsize{5.2}{5.46}\selectfont\ttfamily}
+\newcommand{\console}[2][\consolesmall]{\lstinputlisting[style=console,basicstyle=#1]{figures/#2.txt}}
+
+% Клетка поля на рисунках (для схемы окрестности)
+\newcommand{\nbcell}[3]{\draw[thick] (#1,#2) rectangle ++(1,1); \node at (#1+0.5,#2+0.5) {#3};}
+
+\begin{document}
+
+% =====================================================================
+%                              ТИТУЛЬНЫЙ ЛИСТ
+% =====================================================================
+\begin{titlepage}
+	\begin{center}
+		\large
+		МИНИСТЕРСТВО НАУКИ И ВЫСШЕГО ОБРАЗОВАНИЯ\\
+		РОССИЙСКОЙ ФЕДЕРАЦИИ\\
+		\normalsize
+		«Санкт-Петербургский политехнический университет Петра Великого»\\
+		Институт компьютерных наук и кибербезопасности\\
+		Высшая школа технологий искусственного интеллекта\\
+		Направление: 02.03.01. «Математика и компьютерные науки»
+
+		\vspace{4cm}
+
+		Отчет о выполнении лабораторной работы №1\\
+		По дисциплине: Теория алгоритмов\\
+		На тему: «Реализация двумерного клеточного автомата\\
+		с окрестностью фон Неймана»\\
+		Вариант 43
+	\end{center}
+
+	\vspace{3cm}
+
+	\noindent
+	\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}r@{}}
+		Выполнил студент & \\
+		группы 5130201/40101 & \underline{\hspace{3cm}} Храмов В.Д. \\[1cm]
+		Принял преподаватель & \underline{\hspace{3cm}} Востров А.В. \\[1.5cm]
+		& «\underline{\hspace{1cm}}» \underline{\hspace{3cm}} 2026 г. \\
+	\end{tabular*}
+
+	\vfill
+
+	\begin{center}
+		Санкт-Петербург\\
+		2026
+	\end{center}
+\end{titlepage}
+
+\setcounter{page}{2}
+\tableofcontents
+\newpage
+
+% =====================================================================
+\section*{Введение}
+\phantomsection
+\addcontentsline{toc}{section}{Введение}
+
+В отчете представлено описание выполнения лабораторной работы №1 по дисциплине «Теория алгоритмов».
+
+Необходимо реализовать двумерный клеточный автомат с окрестностью фон Неймана в соответствии с полученным номером №. Граничные условия --- торроидальные. Пользователь определяет ширину поля и количество итераций. Необходимо учесть возможность ввода различных начальных условий (как вручную, так и случайным образом) по выбору пользователя. Реализация возможна в консоли или в графике. В итоге необходимо проанализировать свой клеточный автомат в отчете (его поведение, паттерны, «сходимость», периодичность, классификация по Вольфраму и т.д.).
+№ = номер варианта $\cdot$ 11 $\cdot$ год рождения $\cdot$ месяц $\cdot$ день.
+
+Для варианта 43 и даты рождения 02.11.2006 номер правила равен $\text{№} = 43 \cdot 11 \cdot 2006 \cdot 11 \cdot 2 = 20\,874\,436.$
+
+Программа реализована на языке Java в виде консольного приложения. В разделе~\ref{sec:math} приведено математическое описание автомата и правила №, в разделе~\ref{sec:impl} --- особенности реализации, в разделе~\ref{sec:analysis} --- анализ поведения автомата, в разделе~\ref{sec:results} --- примеры работы программы.
+
+% =====================================================================
+\newpage
+\section{Математическое описание}
+\label{sec:math}
+
+\subsection{Конечный автомат}
+
+Детерминированным конечным автоматом (автоматом Мура) называется шестерка
+\[
+	M = (Q, X, Y, \delta, \lambda, q_0),
+\]
+где
+\begin{itemize}
+	\item $Q$ --- конечное множество состояний;
+	\item $X$ --- конечный входной алфавит;
+	\item $Y$ --- конечный выходной алфавит;
+	\item $\delta: Q \times X \to Q$ --- функция переходов;
+	\item $\lambda: Q \to Y$ --- функция выходов;
+	\item $q_0 \in Q$ --- начальное состояние.
+\end{itemize}
+
+Автомат работает в дискретном времени $t = 0, 1, 2, \dots$: в каждый такт он получает входной символ $x(t) \in X$, переходит в новое состояние и выдает выходной символ, зависящий от текущего состояния:
+\[
+	q(t+1) = \delta\bigl(q(t),\ x(t)\bigr), \qquad y(t) = \lambda\bigl(q(t)\bigr), \qquad q(0) = q_0.
+\]
+Функцию переходов конечного автомата можно задать таблицей размером $|Q| \times |X|$.
+
+\subsection{Клеточный автомат}
+
+Клеточный автомат --- это совокупность одинаковых конечных автоматов (клеток), расположенных в узлах регулярной решетки и соединенных между собой так, что входной символ каждого автомата образуют выходные символы его соседей. Все автоматы работают синхронно, по общим тактам времени~\cite{tema, toffoli}.
+
+Формально клеточный автомат задается тройкой
+\[
+	A = (L, N, M),
+\]
+где
+\begin{itemize}
+	\item $L$ --- решетка клеток; в работе это квадратное поле $n \times n$, клетка задается парой индексов $(i, j)$, где $i$ --- номер строки, $j$ --- номер столбца, $i, j \in \{0, \dots, n-1\}$; индексы берутся по модулю $n$ (тороидальные граничные условия, раздел~\ref{sec:torus});
+	\item $N$ --- окрестность, то есть шаблон, определяющий, с какими клетками соединен вход автомата клетки;
+	\item $M = (Q, X, Y, \delta, \lambda, q_0)$ --- конечный автомат, находящийся в каждой клетке решетки.
+\end{itemize}
+
+В данной работе автомат клетки $M$ имеет следующий вид:
+\begin{itemize}
+	\item $Q = \{0, 1\}$ --- состояния клетки: 0 --- «мертвая», 1 --- «живая»;
+	\item $Y = Q$, $\lambda(q) = q$ --- клетка передает соседям свое состояние;
+	\item $X = Q^4$ --- входной символ клетки $(i, j)$ есть набор состояний ее соседей по окрестности фон Неймана (раздел~\ref{sec:neumann}):
+	\[
+		x_{i,j}(t) = \bigl(q_{i-1,j}(t),\ q_{i,j+1}(t),\ q_{i,j-1}(t),\ q_{i+1,j}(t)\bigr) = (N, E, W, S),
+	\]
+	поэтому входной алфавит содержит $|X| = 2^4 = 16$ символов;
+	\item $\delta: Q \times X \to Q$ --- функция переходов, одинаковая для всех клеток; ее таблица содержит $|Q| \cdot |X| = 2 \cdot 16 = 32$ значения и задается номером правила (раздел~\ref{sec:rule}). Функцию переходов удобно записывать как функцию пяти переменных --- состояния клетки и состояний четырех соседей:
+	\[
+		\delta\bigl(C, (N, E, W, S)\bigr) = f(C, N, E, W, S), \qquad f: Q^5 \to Q;
+	\]
+	\item $q_0$ --- начальное состояние, свое для каждой клетки; совокупность начальных состояний всех клеток (начальная конфигурация) задается пользователем вручную или случайным образом.
+\end{itemize}
+
+Таким образом, все клетки являются копиями одного и того же конечного автомата и различаются только начальными состояниями. Работа клеточного автомата описывается системой
+\[
+	q_{i,j}(t+1) = \delta\bigl(q_{i,j}(t),\ x_{i,j}(t)\bigr), \qquad i, j \in \{0, \dots, n-1\},
+\]
+где все $n^2$ автоматов срабатывают одновременно.
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[>=stealth, thick]
+		\node[draw, rounded corners, minimum width=3.4cm, minimum height=1.6cm, align=center] (m)
+			{автомат клетки $(i, j)$\\ состояние $q_{i,j}(t)$};
+		\node (n) at (0, 2.1) {$N = q_{i-1,j}$};
+		\node (s) at (0, -2.1) {$S = q_{i+1,j}$};
+		\node (w) at (-4.4, 0) {$W = q_{i,j-1}$};
+		\node (e) at (4.4, 0) {$E = q_{i,j+1}$};
+		\draw[->] (n) -- (m);
+		\draw[->] (s) -- (m);
+		\draw[->] (w) -- (m);
+		\draw[->] (e) -- (m);
+		\draw[->] (m.north east) -- node[above, sloped, font=\small] {выход $y = q_{i,j}$} (3.8, 1.9);
+	\end{tikzpicture}
+	\caption{Клетка как конечный автомат: вход --- состояния четырех соседей, выход --- собственное состояние}
+	\label{fig:cell-fsm}
+\end{figure}
+
+Совокупность состояний всех клеток в момент $t$ называется конфигурацией (поколением) $S^t$. Весь клеточный автомат на поле $n \times n$ также можно рассматривать как один конечный автомат без входа (автономный), состояниями которого являются конфигурации: их число конечно и равно $|Q|^{n^2} = 2^{n^2}$, а функция переходов $F$ переводит конфигурацию $S^t$ в $S^{t+1}$. Из конечности множества состояний следует, что последовательность конфигураций в конечном счете становится периодической (раздел~\ref{sec:period}).
+
+\subsection{Окрестность фон Неймана}
+\label{sec:neumann}
+
+В окрестность фон Неймана входят сама клетка $C$ и четыре клетки, имеющие с ней общую сторону: северная $N$, восточная $E$, южная $S$ и западная $W$ (рис.~\ref{fig:neighborhood}). Для клетки $(i, j)$:
+\[
+	C = (i, j), \quad N = (i-1, j), \quad E = (i, j+1), \quad S = (i+1, j), \quad W = (i, j-1).
+\]
+Строки нумеруются сверху вниз, поэтому северный сосед находится в строке с меньшим номером.
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[scale=1.1]
+		\nbcell{1}{2}{$N$}
+		\nbcell{0}{1}{$W$}
+		\draw[thick, fill=gray!25] (1,1) rectangle ++(1,1); \node at (1.5,1.5) {$C$};
+		\nbcell{2}{1}{$E$}
+		\nbcell{1}{0}{$S$}
+	\end{tikzpicture}
+	\caption{Окрестность фон Неймана}
+	\label{fig:neighborhood}
+\end{figure}
+
+\subsection{Функция перехода и номер правила}
+\label{sec:rule}
+
+Окрестность состоит из 5 клеток, каждая из которых имеет 2 состояния, поэтому существует $2^5 = 32$ различные конфигурации окрестности. Функция перехода $f$ сопоставляет каждой из них новое состояние центральной клетки, то есть полностью задается 32 битами. Всего существует $2^{32} \approx 4{,}3 \cdot 10^9$ таких правил.
+
+Чтобы найти нужный бит, конфигурация окрестности переводится в индекс $0 \le idx \le 31$. В работе используется порядок $C\,N\,E\,W\,S$:
+\[
+	idx = 16C + 8N + 4E + 2W + S,
+\]
+а новое состояние клетки равно биту номер $idx$ номера правила:
+\[
+	C^{t+1}_{i,j} = \left\lfloor \frac{\text{№}}{2^{idx}} \right\rfloor \bmod 2.
+\]
+
+Номер правила в двоичной системе счисления (дополнен незначащими нулями до 32 разрядов):
+\[
+	20\,874\,436_{10} = 0000\,0001\,0011\,1110\,1000\,0100\,1100\,0100_2.
+\]
+Таблица истинности функции $f$ приведена в таблице~\ref{tab:truth}.
+
+\begin{table}[H]
+	\centering
+	\caption{Таблица истинности функции перехода (правило 20\,874\,436, порядок $C\,N\,E\,W\,S$)}
+	\label{tab:truth}
+	\small
+	\begin{tabular}{|c|ccccc|c|}
+		\hline
+		$idx$ & $C$ & $N$ & $E$ & $W$ & $S$ & $f$ \\
+		\hline
+		0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		1 & 0 & 0 & 0 & 0 & 1 & 0 \\
+		2 & 0 & 0 & 0 & 1 & 0 & 1 \\
+		3 & 0 & 0 & 0 & 1 & 1 & 0 \\
+		4 & 0 & 0 & 1 & 0 & 0 & 0 \\
+		5 & 0 & 0 & 1 & 0 & 1 & 0 \\
+		6 & 0 & 0 & 1 & 1 & 0 & 1 \\
+		7 & 0 & 0 & 1 & 1 & 1 & 1 \\
+		8 & 0 & 1 & 0 & 0 & 0 & 0 \\
+		9 & 0 & 1 & 0 & 0 & 1 & 0 \\
+		10 & 0 & 1 & 0 & 1 & 0 & 1 \\
+		11 & 0 & 1 & 0 & 1 & 1 & 0 \\
+		12 & 0 & 1 & 1 & 0 & 0 & 0 \\
+		13 & 0 & 1 & 1 & 0 & 1 & 0 \\
+		14 & 0 & 1 & 1 & 1 & 0 & 0 \\
+		15 & 0 & 1 & 1 & 1 & 1 & 1 \\
+		\hline
+	\end{tabular}
+	\hspace{1cm}
+	\begin{tabular}{|c|ccccc|c|}
+		\hline
+		$idx$ & $C$ & $N$ & $E$ & $W$ & $S$ & $f$ \\
+		\hline
+		16 & 1 & 0 & 0 & 0 & 0 & 0 \\
+		17 & 1 & 0 & 0 & 0 & 1 & 1 \\
+		18 & 1 & 0 & 0 & 1 & 0 & 1 \\
+		19 & 1 & 0 & 0 & 1 & 1 & 1 \\
+		20 & 1 & 0 & 1 & 0 & 0 & 1 \\
+		21 & 1 & 0 & 1 & 0 & 1 & 1 \\
+		22 & 1 & 0 & 1 & 1 & 0 & 0 \\
+		23 & 1 & 0 & 1 & 1 & 1 & 0 \\
+		24 & 1 & 1 & 0 & 0 & 0 & 1 \\
+		25 & 1 & 1 & 0 & 0 & 1 & 0 \\
+		26 & 1 & 1 & 0 & 1 & 0 & 0 \\
+		27 & 1 & 1 & 0 & 1 & 1 & 0 \\
+		28 & 1 & 1 & 1 & 0 & 0 & 0 \\
+		29 & 1 & 1 & 1 & 0 & 1 & 0 \\
+		30 & 1 & 1 & 1 & 1 & 0 & 0 \\
+		31 & 1 & 1 & 1 & 1 & 1 & 0 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+По таблице видно, что
+\begin{itemize}
+	\item живая клетка выживает при 6 конфигурациях соседей из 16, мертвая рождается при 5 из 16;
+	\item пустая окрестность остается пустой ($idx = 0 \to 0$), а клетка, у которой живы все 5 клеток окрестности, умирает ($idx = 31 \to 0$);
+	\item правило не является тоталистическим, то есть зависит не от количества живых соседей, а от того, какие именно соседи живы. Например, мертвая клетка с одним живым западным соседом рождается ($idx = 2 \to 1$), а с одним живым восточным --- нет ($idx = 4 \to 0$).
+\end{itemize}
+
+\subsection{Граничные условия}
+\label{sec:torus}
+
+В работе используются тороидальные граничные условия: противоположные края поля считаются соседними. Правый край поля склеивается с левым, а верхний --- с нижним, и поле превращается в поверхность тора, у которой нет границ. Все клетки при этом оказываются равноправными: у каждой ровно 4 соседа.
+
+Для поля $n \times n$ координата соседа, вышедшая за край, приводится по модулю $n$:
+\[
+	i' = i \bmod n, \qquad j' = j \bmod n,
+\]
+где $\bmod$ --- математический остаток, лежащий в диапазоне $0, \dots, n-1$. Например, для клеток на краях поля:
+\begin{itemize}
+	\item верхняя строка ($i = 0$): северный сосед --- клетка $(n-1, j)$;
+	\item нижняя строка ($i = n-1$): южный сосед --- клетка $(0, j)$;
+	\item левый столбец ($j = 0$): западный сосед --- клетка $(i, n-1)$;
+	\item правый столбец ($j = n-1$): восточный сосед --- клетка $(i, 0)$.
+\end{itemize}
+
+\subsection{Синхронное обновление}
+
+Все клетки автомата обновляются одновременно: новое состояние каждой клетки вычисляется только по конфигурации $S^t$:
+\[
+	C^{t+1}_{i,j} = f\left(C^t_{i,j},\ C^t_{i-1,j},\ C^t_{i,j+1},\ C^t_{i,j-1},\ C^t_{i+1,j}\right).
+\]
+Если записывать новые значения в то же поле, из которого читаются соседи, то часть клеток увидит соседей уже из поколения $t+1$, и результат будет зависеть от порядка обхода поля. Поэтому для вычисления шага используются два поля: из одного читается поколение $t$, в другое записывается поколение $t+1$.
+
+\subsection{Сходимость и периодичность}
+\label{sec:period}
+
+Поле $n \times n$ с двумя состояниями клетки имеет конечное число конфигураций --- $2^{n^2}$. Автомат детерминирован: из одной конфигурации всегда получается одна и та же. Поэтому не более чем через $2^{n^2}$ шагов некоторая конфигурация обязательно повторится, и начиная с этого момента эволюция становится периодической:
+\[
+	S^0 \to S^1 \to \dots \to S^{t_0} \to \dots \to S^{t_0 + p - 1} \to S^{t_0 + p} = S^{t_0}.
+\]
+Здесь $t_0$ --- предпериод (длина переходного процесса), $p$ --- период. Если $p = 1$, конфигурация больше не меняется --- это неподвижная точка. Если $S^j = S^i$ для некоторых $i < j$ и все предыдущие конфигурации различны, то $t_0 = i$, $p = j - i$.
+
+\subsection{Классификация Вольфрама}
+
+С. Вольфрам предложил разделить клеточные автоматы на четыре класса по характеру их эволюции из случайных начальных конфигураций~\cite{wolfram1984, wolfram2002}:
+\begin{enumerate}
+	\item \textbf{Класс I} --- эволюция приводит к однородному состоянию (все клетки мертвые или все живые).
+	\item \textbf{Класс II} --- эволюция приводит к набору простых устойчивых или периодических структур, разделенных друг от друга.
+	\item \textbf{Класс III} --- хаотическое (псевдослучайное) поведение. Конфигурации не упорядочиваются, малые изменения начальных условий распространяются по полю.
+	\item \textbf{Класс IV} --- сложные локализованные структуры, которые движутся и взаимодействуют между собой; поведение на границе порядка и хаоса.
+\end{enumerate}
+
+% =====================================================================
+\newpage
+\section{Особенности реализации}
+\label{sec:impl}
+
+Программа написана на языке Java и состоит из двух классов:
+\begin{itemize}
+	\item \texttt{CellularAutomaton} --- логика автомата: хранение поля, правило перехода, шаг эволюции, начальные условия, обнаружение цикла;
+	\item \texttt{Main} --- консольный интерфейс: ввод параметров с проверкой, выбор начальных условий, вывод поля и итогов.
+\end{itemize}
+Полный исходный код приведен в Приложении.
+
+\subsection{Класс CellularAutomaton}
+
+Класс содержит следующие поля:
+\begin{itemize}
+	\item \texttt{long rule} --- номер правила;
+	\item \texttt{int size} --- ширина (и высота) квадратного поля;
+	\item \texttt{boolean[][] cells} --- текущее поколение, \texttt{cells[row][col]}, \texttt{true} --- живая клетка;
+	\item \texttt{boolean[][] next} --- буфер для следующего поколения;
+	\item \texttt{int generation} --- номер текущего поколения;
+	\item \texttt{Map<BitSet, Integer> history} --- все встреченные конфигурации и номера поколений, в которых они впервые появились;
+	\item \texttt{boolean cycleFound}, \texttt{int transientLength}, \texttt{int period} --- признак найденного цикла, предпериод и период.
+\end{itemize}
+
+\subsubsection*{Конструктор CellularAutomaton()}
+
+Конструктор вычисляет номер правила по формуле из задания и создает два пустых поля заданного размера. Приведение первого множителя к \texttt{long} гарантирует, что все произведение вычисляется в 64-битной арифметике без переполнения. Код представлен в листинге~\ref{lst:ctor}.
+
+Входные данные: \texttt{int numberOption, constValue, year, month, day} --- параметры формулы, \texttt{int size} --- размер поля.
+
+Выходные данные: объект автомата с пустым полем.
+
+\begin{lstlisting}[caption={Конструктор класса CellularAutomaton}, label={lst:ctor}]
+public CellularAutomaton(int numberOption, int constValue, int year, int month, int day, int size) {
+	this.rule = (long) numberOption * constValue * year * month * day;
+	this.size = size;
+	this.cells = new boolean[this.size][this.size];
+	this.next = new boolean[this.size][this.size];
+}
+\end{lstlisting}
+
+\subsubsection*{Методы bit() и newState()}
+
+Метод \texttt{bit} возвращает $k$-й бит числа $x$: число сдвигается вправо на $k$ разрядов, после чего побитовым «И» с единицей выделяется младший бит. Метод \texttt{newState} применяет его к номеру правила и возвращает новое состояние клетки по индексу окрестности. Код представлен в листинге~\ref{lst:bit}.
+
+Входные данные: \texttt{long x} --- число, \texttt{int k} --- номер бита; для \texttt{newState} --- индекс окрестности \texttt{idx} ($0..31$).
+
+Выходные данные: 0 или 1.
+
+\begin{lstlisting}[caption={Методы bit() и newState()}, label={lst:bit}]
+int newState(int idx) {
+	return bit(rule, idx);
+}
+
+static int bit(long x, int k) {
+	long shifted = x >> k;
+	long lastBit = shifted & 1;
+	return (int) lastBit;
+}
+\end{lstlisting}
+
+\subsubsection*{Методы wrap() и getWrapped()}
+
+Метод \texttt{wrap} реализует тороидальные граничные условия: переводит любую координату в диапазон $0..size-1$. Метод \texttt{getWrapped} возвращает состояние клетки с учетом тора. Код представлен в листинге~\ref{lst:wrap}.
+
+Входные данные: координата \texttt{coord} (для \texttt{getWrapped} --- \texttt{row, col}), возможно, вышедшая за край поля.
+
+Выходные данные: координата внутри поля; состояние клетки.
+
+\begin{lstlisting}[caption={Методы wrap() и getWrapped()}, label={lst:wrap}]
+private int wrap(int coord) {
+	return (coord % size + size) % size;
+}
+
+private boolean getWrapped(int row, int col) {
+	return cells[wrap(row)][wrap(col)];
+}
+\end{lstlisting}
+
+\subsubsection*{Метод neighborhoodIndex()}
+
+Метод собирает индекс окрестности фон Неймана клетки $(row, col)$ в порядке $C\,N\,E\,W\,S$. Состояние каждой из пяти клеток читается с учетом тора и переводится в 0 или 1 методом \texttt{toBit}, после чего биты складываются с весами 16, 8, 4, 2, 1. Код представлен в листинге~\ref{lst:index}.
+
+Входные данные: \texttt{int row, col} --- координаты клетки.
+
+Выходные данные: индекс окрестности $0..31$.
+
+\begin{lstlisting}[caption={Метод neighborhoodIndex()}, label={lst:index}]
+int neighborhoodIndex(int row, int col) {
+	int n = toBit(getWrapped(row - 1, col));
+	int c = toBit(getWrapped(row, col));
+	int s = toBit(getWrapped(row + 1, col));
+	int w = toBit(getWrapped(row, col - 1));
+	int e = toBit(getWrapped(row, col + 1));
+	return c * 16 + n * 8 + e * 4 + w * 2 + s;
+}
+\end{lstlisting}
+
+\subsubsection*{Метод step()}
+
+Метод выполняет один шаг эволюции. Для каждой клетки вычисляется индекс окрестности по текущему полю \texttt{cells}, новое состояние записывается в буфер \texttt{next}. После обработки всех клеток ссылки на массивы меняются местами: новое поколение становится текущим, а старый массив используется как буфер на следующем шаге. Копирования массивов при этом не происходит. Перед первым шагом в историю записывается начальная конфигурация, а после каждого шага выполняется проверка на повторение конфигурации. Сложность одного шага --- $O(n^2)$. Код представлен в листинге~\ref{lst:step}.
+
+Входные данные: текущее поле.
+
+Выходные данные: поле следующего поколения, увеличенный номер поколения.
+
+\begin{lstlisting}[caption={Метод step()}, label={lst:step}]
+public void step() {
+	if (history.isEmpty()) {
+		history.put(snapshot(), generation);
+	}
+
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			int idx = neighborhoodIndex(i, j);
+			next[i][j] = newState(idx) == 1;
+		}
+	}
+
+	boolean[][] tmp = cells;
+	cells = next;
+	next = tmp;
+
+	generation++;
+	checkCycle();
+}
+\end{lstlisting}
+
+\subsubsection*{Методы checkCycle() и snapshot()}
+
+Для обнаружения цикла все встреченные конфигурации хранятся в хеш-таблице \texttt{history} (конфигурация $\to$ номер поколения). Метод \texttt{snapshot} упаковывает поле в \texttt{BitSet}: клетка $(row, col)$ соответствует биту $row \cdot size + col$, т.\,е. на клетку тратится один бит. Методы \texttt{equals} и \texttt{hashCode} класса \texttt{BitSet} сравнивают содержимое, поэтому его можно использовать как ключ хеш-таблицы, в отличие от массива \texttt{boolean[][]}.
+
+Метод \texttt{checkCycle} пытается добавить текущую конфигурацию в таблицу методом \texttt{putIfAbsent}. Если такая конфигурация уже встречалась в поколении $prev$, метод возвращает $prev$, и тогда предпериод равен $prev$, а период --- $generation - prev$. После обнаружения цикла конфигурации больше не сохраняются. Сравнение конфигураций точное (без риска коллизий), а затраты памяти составляют $O(T \cdot n^2 / 8)$ байт, где $T$ --- число выполненных шагов. Код представлен в листинге~\ref{lst:cycle}.
+
+Входные данные: текущее поле, номер поколения.
+
+Выходные данные: признак \texttt{cycleFound}, предпериод \texttt{transientLength} и период \texttt{period}.
+
+\begin{lstlisting}[caption={Методы checkCycle() и snapshot()}, label={lst:cycle}]
+private void checkCycle() {
+	if (cycleFound) {
+		return;
+	}
+	Integer prev = history.putIfAbsent(snapshot(), generation);
+	if (prev != null) {
+		cycleFound = true;
+		transientLength = prev;
+		period = generation - prev;
+	}
+}
+
+private BitSet snapshot() {
+	BitSet bits = new BitSet(size * size);
+	for (int row = 0; row < size; row++) {
+		for (int col = 0; col < size; col++) {
+			if (cells[row][col]) {
+				bits.set(row * size + col);
+			}
+		}
+	}
+	return bits;
+}
+\end{lstlisting}
+
+\subsubsection*{Метод randomize()}
+
+Метод заполняет поле случайным образом: каждая клетка становится живой с вероятностью \texttt{density}, независимо от остальных. Для этого используется равномерно распределенное число из $[0, 1)$, возвращаемое \texttt{Random.nextDouble()}: оно меньше \texttt{density} ровно с вероятностью \texttt{density}. Ожидаемое число живых клеток равно $density \cdot n^2$. Генератор псевдослучайных чисел инициализируется заданным значением \texttt{seed}, поэтому одинаковый \texttt{seed} всегда дает одинаковое поле, что позволяет воспроизводить эксперименты. Код представлен в листинге~\ref{lst:random}.
+
+Входные данные: \texttt{double density} --- плотность живых клеток ($0..1$), \texttt{long seed} --- начальное значение генератора.
+
+Выходные данные: случайно заполненное поле.
+
+\begin{lstlisting}[caption={Метод randomize()}, label={lst:random}]
+public void randomize(double density, long seed) {
+	Random random = new Random(seed);
+	for (int row = 0; row < size; row++) {
+		for (int col = 0; col < size; col++) {
+			cells[row][col] = random.nextDouble() < density;
+		}
+	}
+}
+\end{lstlisting}
+
+Также класс содержит методы \texttt{getCell} и \texttt{setCell} (чтение и запись клетки), \texttt{clear} (очистка поля), \texttt{population} (число живых клеток) и методы доступа \texttt{getSize}, \texttt{getGeneration}, \texttt{isCycleFound}, \texttt{getTransientLength}, \texttt{getPeriod}.
+
+\subsection{Класс Main}
+
+Класс \texttt{Main} реализует консольный интерфейс программы. Ввод и вывод выполняются с помощью класса \texttt{java.lang.IO}.
+
+\subsubsection*{Метод main()}
+
+Метод запрашивает у пользователя ширину поля ($3..100$), количество итераций ($1..100\,000$), начальные условия, шаг вывода $k$ (печатается каждое $k$-е поколение) и необходимость остановки при обнаружении цикла. Затем выполняется заданное число итераций; печатаются начальное поле, каждое $k$-е поколение, последнее поколение и поколение, на котором обнаружен цикл. В конце выводится итог работы. Код представлен в листинге~\ref{lst:main}.
+
+Минимальная ширина поля равна 3, так как при $n \le 2$ на торе северный и южный (западный и восточный) соседи клетки совпадают, и окрестность фон Неймана вырождается.
+
+\begin{lstlisting}[caption={Основной цикл метода main()}, label={lst:main}]
+printGeneration(automaton);
+for (int i = 1; i <= iterations; i++) {
+	boolean hadCycle = automaton.isCycleFound();
+	automaton.step();
+	boolean cycleJustFound = !hadCycle && automaton.isCycleFound();
+
+	if (i % printEvery == 0 || i == iterations || cycleJustFound) {
+		printGeneration(automaton);
+	}
+	if (cycleJustFound && stopOnCycle) {
+		break;
+	}
+}
+
+printSummary(automaton);
+\end{lstlisting}
+
+\subsubsection*{Методы readInt() и readLine()}
+
+Метод \texttt{readInt} запрашивает целое число до тех пор, пока не будет введено корректное значение из диапазона $[min, max]$. При пустом вводе возвращается значение по умолчанию, которое показывается в подсказке в квадратных скобках. Ввод читается целой строкой и преобразуется в число методом \texttt{Integer.parseInt}; некорректный ввод перехватывается через исключение \texttt{NumberFormatException}. Метод \texttt{readLine} читает строку и при окончании ввода (EOF) возвращает пустую строку. Код представлен в листинге~\ref{lst:readint}.
+
+Входные данные: \texttt{prompt} --- подсказка, \texttt{min}, \texttt{max} --- границы диапазона, \texttt{def} --- значение по умолчанию.
+
+Выходные данные: введенное число из $[min, max]$ или \texttt{def}.
+
+\begin{lstlisting}[caption={Методы readInt() и readLine()}, label={lst:readint}]
+static int readInt(String prompt, int min, int max, int def) {
+	while (true) {
+		String s = readLine(prompt + " [" + def + "]: ");
+		if (s.isEmpty()) {
+			return def;
+		}
+		try {
+			int value = Integer.parseInt(s);
+			if (value >= min && value <= max) {
+				return value;
+			}
+		} catch (NumberFormatException ignored) {
+		}
+		println("  Введите целое число от " + min + " до " + max + ".");
+	}
+}
+
+static String readLine(String prompt) {
+	String s = readln(prompt);
+	return s == null ? "" : s.trim();
+}
+\end{lstlisting}
+
+\subsubsection*{Метод initField()}
+
+Метод выводит меню начальных условий и заполняет поле выбранным способом:
+\begin{enumerate}
+	\item случайно --- запрашиваются плотность живых клеток в процентах и \texttt{seed}. Если \texttt{seed} не введен, он генерируется из текущего времени и печатается, чтобы эксперимент можно было повторить (метод \texttt{readSeed});
+	\item вручную --- метод \texttt{readManual};
+	\item одна живая клетка в центре поля;
+	\item пустое поле.
+\end{enumerate}
+
+\subsubsection*{Метод readManual()}
+
+Метод реализует ручной ввод начальной конфигурации: пользователь вводит строки поля сверху вниз, символы \texttt{\#} и \texttt{1} обозначают живую клетку, любые другие --- мертвую. Строка короче ширины поля дополняется мертвыми клетками, лишние символы игнорируются, пустая строка завершает ввод (оставшиеся строки --- мертвые). Код представлен в листинге~\ref{lst:manual}.
+
+Входные данные: автомат, поле которого заполняется.
+
+Выходные данные: поле, заполненное по вводу пользователя.
+
+\begin{lstlisting}[caption={Метод readManual()}, label={lst:manual}]
+static void readManual(CellularAutomaton automaton) {
+	int size = automaton.getSize();
+	println("Вводите строки поля сверху вниз (до " + size + " строк).");
+	println("Живая клетка: # или 1, мёртвая: . или 0. Пустая строка — закончить ввод.");
+	automaton.clear();
+	for (int row = 0; row < size; row++) {
+		String line = readln(String.format("%3d> ", row));
+		if (line == null || line.isBlank()) {
+			break;
+		}
+		for (int col = 0; col < Math.min(line.length(), size); col++) {
+			char ch = line.charAt(col);
+			automaton.setCell(row, col, ch == '#' || ch == '1');
+		}
+	}
+}
+\end{lstlisting}
+
+\subsubsection*{Методы вывода}
+
+Метод \texttt{printField} печатает поле построчно: \texttt{\#} --- живая клетка, \texttt{.} --- мертвая. Метод \texttt{printGeneration} дополнительно печатает заголовок с номером поколения, числом живых клеток и, если цикл уже найден, предпериодом и периодом. Метод \texttt{printSummary} выводит итог: число выполненных итераций, число живых клеток, а также предпериод и период цикла либо сообщение о том, что цикл не обнаружен.
+
+% =====================================================================
+\newpage
+\section{Анализ клеточного автомата}
+\label{sec:analysis}
+
+Все эксперименты, описанные в разделе, воспроизводятся в программе: случайные начальные условия задаются плотностью и значением \texttt{seed}, простые паттерны --- ручным вводом.
+
+\subsection{Свойства правила}
+
+Из таблицы истинности (табл.~\ref{tab:truth}) следуют свойства, которые определяют поведение автомата.
+\begin{enumerate}
+	\item \textbf{Пустое поле неподвижно.} Конфигурация $idx = 0$ переходит в 0, поэтому из пустого поля ничего не возникает: $t_0 = 0$, $p = 1$.
+	\item \textbf{Полностью заполненное поле вымирает за один шаг.} Конфигурация $idx = 31$ переходит в 0, поэтому на следующем шаге все клетки мертвые, далее поле пустое: $t_0 = 1$, $p = 1$.
+	\item \textbf{Анизотропия.} Правило несимметрично относительно поворотов и отражений. Единственный сосед, присутствие которого вызывает рождение мертвой клетки, --- западный ($idx = 2 \to 1$), тогда как одиночные северный, восточный или южный соседи рождения не вызывают ($idx = 8, 4, 1 \to 0$). В результате у динамики есть выделенное направление --- на восток (вправо).
+	\item \textbf{Одномерное инвариантное подмножество.} Если живые клетки находятся только в одной строке, то клетки соседних строк видят лишь одного живого соседа по вертикали ($idx = 1$ или $idx = 8$) и не рождаются. Значит, конфигурация, занимающая одну строку, остается в этой строке. Внутри строки ($N = S = 0$) правило сводится к одномерному элементарному клеточному автомату с окрестностью $(W, C, E)$:
+	\[
+		C^{t+1} = W^t \oplus (C^t \wedge E^t),
+	\]
+	что соответствует элементарному правилу 120 по нумерации Вольфрама (зеркальное отражение правила 106).
+\end{enumerate}
+
+\subsection{Простые паттерны}
+
+\subsubsection*{Одиночная клетка}
+
+Одиночная живая клетка умирает ($idx = 16 \to 0$), а клетка справа от нее рождается, так как видит живого западного соседа ($idx = 2 \to 1$). Остальные соседи живой клетки не рождаются. В результате клетка за каждый шаг сдвигается на одну позицию вправо (рис.~\ref{fig:single}), т.\,е. является простейшим «глайдером», движущимся с максимально возможной для окрестности фон Неймана скоростью. Дойдя до правого края, клетка появляется у левого (тор), поэтому на поле $n \times n$ она возвращается в исходное положение через $n$ шагов: $t_0 = 0$, $p = n$. На рис.~\ref{fig:single} показано поле $7 \times 7$, на котором период равен 7.
+
+\begin{figure}[H]
+	\centering
+	\begin{minipage}{0.3\textwidth}\centering\console{single_0}\end{minipage}
+	\begin{minipage}{0.3\textwidth}\centering\console{single_1}\end{minipage}
+	\begin{minipage}{0.3\textwidth}\centering\console{single_2}\end{minipage}\\[3mm]
+	\begin{minipage}{0.3\textwidth}\centering\console{single_3}\end{minipage}
+	\begin{minipage}{0.3\textwidth}\centering\console{single_4}\end{minipage}
+	\begin{minipage}{0.3\textwidth}\centering\console{single_7}\end{minipage}
+	\caption{Движение одиночной клетки на поле $7 \times 7$}
+	\label{fig:single}
+\end{figure}
+
+\subsubsection*{Горизонтальные паттерны}
+
+Паттерн из живых клеток одной строки, согласно свойству 4, развивается только внутри этой строки по одномерному правилу 120. На рис.~\ref{fig:hpair} показана эволюция пары соседних клеток: в строке возникает нерегулярная последовательность живых клеток, которая смещается вправо. На поле $20 \times 20$ такая эволюция выходит на цикл с периодом 5240 после предпериода 785 шагов (табл.~\ref{tab:patterns}).
+
+\begin{figure}[H]
+	\centering
+	\begin{minipage}{0.3\textwidth}\centering\console{hpair_0}\end{minipage}
+	\begin{minipage}{0.3\textwidth}\centering\console{hpair_1}\end{minipage}
+	\begin{minipage}{0.3\textwidth}\centering\console{hpair_2}\end{minipage}\\[3mm]
+	\begin{minipage}{0.3\textwidth}\centering\console{hpair_3}\end{minipage}
+	\begin{minipage}{0.3\textwidth}\centering\console{hpair_4}\end{minipage}
+	\caption{Эволюция горизонтальной пары клеток на поле $11 \times 11$}
+	\label{fig:hpair}
+\end{figure}
+
+\subsubsection*{Двумерные паттерны}
+
+Если живые клетки находятся в нескольких строках, то возникают конфигурации с живым западным соседом в соседних строках, и паттерн начинает расти по вертикали. На рис.~\ref{fig:vpair} и~\ref{fig:cross} показаны первые шаги эволюции вертикальной пары клеток и «креста». В обоих случаях паттерн разрастается и одновременно смещается вправо.
+
+\begin{figure}[H]
+	\centering
+	\begin{minipage}{0.23\textwidth}\centering\console{vpair_0}\end{minipage}
+	\begin{minipage}{0.23\textwidth}\centering\console{vpair_1}\end{minipage}
+	\begin{minipage}{0.23\textwidth}\centering\console{vpair_2}\end{minipage}
+	\begin{minipage}{0.23\textwidth}\centering\console{vpair_3}\end{minipage}
+	\caption{Эволюция вертикальной пары клеток на поле $9 \times 9$}
+	\label{fig:vpair}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\begin{minipage}{0.23\textwidth}\centering\console{cross_0}\end{minipage}
+	\begin{minipage}{0.23\textwidth}\centering\console{cross_1}\end{minipage}
+	\begin{minipage}{0.23\textwidth}\centering\console{cross_2}\end{minipage}
+	\begin{minipage}{0.23\textwidth}\centering\console{cross_3}\end{minipage}
+	\caption{Эволюция паттерна «крест» на поле $9 \times 9$}
+	\label{fig:cross}
+\end{figure}
+
+Результаты запуска автомата на простых паттернах, помещенных в центр поля $20 \times 20$, приведены в таблице~\ref{tab:patterns}.
+
+\begin{table}[H]
+	\centering
+	\caption{Простые паттерны на поле $20 \times 20$}
+	\label{tab:patterns}
+	\begin{tabular}{|l|c|c|c|}
+		\hline
+		Паттерн & Предпериод $t_0$ & Период $p$ & Живых в цикле \\
+		\hline
+		одна клетка & 0 & 20 & 1 \\
+		диагональ из 3 клеток & 1 & 20 & 1 \\
+		крест & 11 & 40 & 9 \\
+		две клетки по горизонтали & 785 & 5240 & 10 \\
+		горизонтальная линия из 3 клеток & 784 & 5240 & 10 \\
+		две клетки по вертикали & 428 & 21240 & 13 \\
+		квадрат $2 \times 2$ & 427 & 21240 & 13 \\
+		квадрат $3 \times 3$ & 1036 & 5240 & 21 \\
+		буква «L» & 786 & 5240 & 20 \\
+		вертикальная линия из 3 клеток & \multicolumn{2}{c|}{не найден за $10^5$ шагов} & 25 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Видно, что даже паттерны из 2--5 клеток в большинстве случаев проходят длинный переходный процесс (сотни шагов) и выходят на циклы длиной в тысячи шагов. Исключения --- паттерны, которые за несколько шагов сводятся к одиночной движущейся клетке (диагональ) или к небольшой движущейся структуре (крест).
+
+\subsection{Случайные начальные условия}
+
+На рис.~\ref{fig:random} показана эволюция случайной начальной конфигурации на поле $30 \times 30$ с плотностью живых клеток 30\,\% (\texttt{seed} = 1). Уже через несколько шагов поле перестает напоминать начальную конфигурацию, и далее картина остается неупорядоченной: устойчивых или периодических локальных структур не возникает, характерны короткие горизонтальные цепочки живых клеток, движущиеся вправо.
+
+\begin{figure}[H]
+	\centering
+	\begin{minipage}{0.48\textwidth}\centering\console[\consoletiny]{random_0}\end{minipage}\hfill
+	\begin{minipage}{0.48\textwidth}\centering\console[\consoletiny]{random_1}\end{minipage}\\[2mm]
+	\begin{minipage}{0.48\textwidth}\centering\console[\consoletiny]{random_10}\end{minipage}\hfill
+	\begin{minipage}{0.48\textwidth}\centering\console[\consoletiny]{random_100}\end{minipage}\\[2mm]
+	\begin{minipage}{0.48\textwidth}\centering\console[\consoletiny]{random_1000}\end{minipage}
+	\caption{Эволюция случайной конфигурации на поле $30 \times 30$ (плотность 30\,\%, seed = 1)}
+	\label{fig:random}
+\end{figure}
+
+Для оценки «сходимости» была исследована доля живых клеток в зависимости от номера поколения. Эксперимент проводился на поле $50 \times 50$ для начальных плотностей 10, 30, 50, 70 и 90\,\%; для каждой плотности результат усреднен по 20 запускам (\texttt{seed} = 1..20). Результаты представлены на рис.~\ref{fig:population}.
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+			width=0.95\textwidth, height=8cm,
+			xlabel={Поколение $t$}, ylabel={Доля живых клеток},
+			xmin=0, xmax=1000, ymin=0, ymax=1,
+			grid=major, grid style={gray!25},
+			legend pos=north east, legend cell align=left,
+			every axis plot/.append style={thick},
+			]
+			\addplot[blue]          table[x=t, y=d10] {data/population.dat}; \addlegendentry{10\,\%}
+			\addplot[red]           table[x=t, y=d30] {data/population.dat}; \addlegendentry{30\,\%}
+			\addplot[green!60!black] table[x=t, y=d50] {data/population.dat}; \addlegendentry{50\,\%}
+			\addplot[orange]        table[x=t, y=d70] {data/population.dat}; \addlegendentry{70\,\%}
+			\addplot[violet]        table[x=t, y=d90] {data/population.dat}; \addlegendentry{90\,\%}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Доля живых клеток на поле $50 \times 50$ (среднее по 20 запускам)}
+	\label{fig:population}
+\end{figure}
+
+Независимо от начальной плотности доля живых клеток стремится к одному и тому же значению $\approx 0{,}19\text{--}0{,}20$. При плотностях 30--70\,\% это значение достигается за 100--200 шагов. При плотности 90\,\% большинство клеток окружено живыми соседями и гибнет на первом же шаге ($idx = 31 \to 0$), поэтому доля резко падает до $\approx 0{,}1$ и затем медленно растет; при плотности 10\,\% доля медленно растет снизу. Таким образом, автомат «забывает» начальную плотность и выходит на статистически стационарный режим, однако сама конфигурация при этом продолжает непрерывно меняться.
+
+\subsection{Периодичность}
+
+В таблице~\ref{tab:periods} приведены предпериоды и периоды, найденные программой для полей $n \times n$ при $n = 3..16$, плотности 50\,\% и \texttt{seed} = 1..10 (ограничение --- $10^5$ шагов, как в программе).
+
+\begin{table}[H]
+	\centering
+	\caption{Предпериоды и периоды для случайных конфигураций (плотность 50\,\%, 10 запусков)}
+	\label{tab:periods}
+	\begin{tabular}{|c|c|c|l|c|}
+		\hline
+		$n$ & $2^{n^2}$ & $t_0$ (мин--макс) & Найденные периоды $p$ & Не найден \\
+		\hline
+		3  & $5{,}1 \cdot 10^{2}$  & 0--5     & 1, 3                  & 0 \\
+		4  & $6{,}6 \cdot 10^{4}$  & 1--14    & 2, 4, 18              & 0 \\
+		5  & $3{,}4 \cdot 10^{7}$  & 1--12    & 5, 15, 45             & 0 \\
+		6  & $6{,}9 \cdot 10^{10}$ & 8--24    & 1, 3, 6               & 0 \\
+		7  & $5{,}6 \cdot 10^{14}$ & 2--46    & 7, 28, 49, 196        & 0 \\
+		8  & $1{,}8 \cdot 10^{19}$ & 10--57   & 30, 36, 120, 180, 360 & 0 \\
+		9  & $2{,}4 \cdot 10^{24}$ & 30--154  & 9, 36, 54, 108        & 0 \\
+		10 & $1{,}3 \cdot 10^{30}$ & 30--118  & 205, 410, 1640        & 0 \\
+		11 & $2{,}7 \cdot 10^{36}$ & 47--139  & 176, 1232             & 0 \\
+		12 & $2{,}2 \cdot 10^{43}$ & 50--311  & 1, 12, 24, 168        & 0 \\
+		13 & $7{,}5 \cdot 10^{50}$ & 125--190 & 416, 4576, 12896, 22880 & 5 \\
+		14 & $1{,}0 \cdot 10^{59}$ & 179--427 & 15680, 28224          & 2 \\
+		15 & $5{,}4 \cdot 10^{67}$ & 134--289 & 450, 32850, 59850     & 7 \\
+		16 & $1{,}2 \cdot 10^{77}$ & 189--745 & 2688, 13440           & 0 \\
+		\hline
+	\end{tabular}
+\end{table}
+
+На полях $n = 17, 18$ циклы еще находятся (например, $t_0 = 746$, $p = 2533$ при $n = 17$; $t_0 = 554$, $p = 23\,976$ при $n = 18$), но уже при $n = 20$ и $n = 25$ ни в одном из запусков цикл за $10^5$ шагов не обнаружен; при $n = 30$ (плотность 30\,\%) цикл не найден за $10^5$ шагов.
+
+% TODO: при желании дополнить таблицу собственными запусками программы (например, n = 20, 30 с другими seed)
+% и приложить скриншот итога программы для одного из случаев, когда цикл найден, и одного, когда не найден.
+
+Из таблицы видно, что
+\begin{itemize}
+	\item предпериод невелик по сравнению с периодом: автомат быстро выходит на аттрактор, но аттрактор оказывается очень длинным циклом;
+	\item период в целом быстро растет с размером поля (от единиц при $n \le 6$ до десятков тысяч при $n \ge 13$), хотя рост неравномерен и зависит от арифметических свойств $n$;
+	\item периоды часто кратны $n$, что связано со сдвигом структур вправо: конфигурация возвращается в исходное положение после целого числа оборотов вокруг тора;
+	\item найденные периоды несравнимо меньше числа $2^{n^2}$ возможных конфигураций, однако при $n \ge 20$ они уже недоступны для прямого перебора.
+\end{itemize}
+
+\subsection{Чувствительность к начальным условиям}
+
+Для проверки чувствительности к начальным условиям на поле $100 \times 100$ запускались два экземпляра автомата из одинаковой случайной конфигурации (плотность 50\,\%), отличающихся состоянием одной центральной клетки. На каждом шаге вычислялось расстояние Хэмминга между конфигурациями --- число клеток, в которых они различаются. Результат, усредненный по 10 запускам, представлен на рис.~\ref{fig:damage}.
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}[
+			width=0.95\textwidth, height=7cm,
+			xlabel={Поколение $t$}, ylabel={Расстояние Хэмминга},
+			xmin=0, xmax=400, ymin=0,
+			grid=major, grid style={gray!25},
+			every axis plot/.append style={thick},
+			]
+			\addplot[blue] table[x=t, y=h] {data/damage.dat};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Распространение возмущения одной клетки на поле $100 \times 100$ (среднее по 10 запускам)}
+	\label{fig:damage}
+\end{figure}
+
+Возмущение одной клетки не затухает, а разрастается: за первые 120 шагов число различающихся клеток растет примерно линейно и достигает $\approx 300$, после чего рост замедляется. Область возмущения смещается вправо со скоростью одна клетка за шаг и расширяется преимущественно по горизонтали, а по вертикали --- медленно, что является следствием анизотропии правила. В отдельных запусках возмущение исчезает, не успев распространиться.
+
+\subsection{Классификация по Вольфраму}
+
+По результатам анализа автомат с правилом 20\,874\,436 (порядок $C\,N\,E\,W\,S$) относится к \textbf{классу III} (хаотическое поведение):
+\begin{itemize}
+	\item эволюция случайных конфигураций не приводит ни к однородному состоянию (класс I), ни к набору простых устойчивых или периодических структур (класс II): поле остается неупорядоченным, а доля живых клеток колеблется около $\approx 0{,}2$;
+	\item малые изменения начальных условий распространяются по полю (рис.~\ref{fig:damage});
+	\item длины циклов на торе быстро растут с размером поля и уже при $n \ge 20$ не наблюдаются за $10^5$ шагов;
+	\item даже простые паттерны из нескольких клеток порождают длительную нерегулярную эволюцию.
+\end{itemize}
+
+У автомата есть и черты других классов: на малых полях ($n \le 6$) встречаются неподвижные точки и короткие циклы, а одиночная клетка является движущейся локализованной структурой («глайдером»). Однако на случайных начальных конфигурациях такие структуры не сохраняются и растворяются в хаотическом фоне, поэтому оснований для отнесения автомата к классу IV нет.
+
+% =====================================================================
+\newpage
+\section{Результаты работы программы}
+\label{sec:results}
+
+Ниже приведены листинги работы программы (вывод в консоль вместе с введенными пользователем значениями). Программа запускается командой \texttt{./gradlew run} из каталога проекта.
+
+После запуска программа выводит заголовок, запрашивает ширину поля и количество итераций, а затем предлагает выбрать способ задания начальных условий (рис.~\ref{fig:start}). В квадратных скобках указаны значения по умолчанию, которые принимаются при пустом вводе.
+
+\begin{figure}[H]
+	\centering
+	\console[\consolemedium]{start}
+	\caption{Запуск программы и ввод параметров}
+	\label{fig:start}
+\end{figure}
+
+Все значения вводятся с проверкой: если введено не целое число (\texttt{abc}, \texttt{2.5}) или число вне допустимого диапазона (\texttt{-5}, \texttt{1000}), программа выводит сообщение с допустимым диапазоном и повторяет запрос. Для \texttt{seed} допускается любое целое число или пустой ввод. На рис.~\ref{fig:error} показан пример запуска, в котором для каждого параметра сначала было введено некорректное значение, а затем корректное. После ввода всех параметров программа продолжает работу в обычном режиме.
+
+\begin{figure}[H]
+	\centering
+	\console[\consolemedium]{error}
+	\caption{Обработка некорректного ввода (фрагмент вывода программы)}
+	\label{fig:error}
+\end{figure}
+
+При выборе случайных начальных условий пользователь задает плотность живых клеток в процентах и \texttt{seed} генератора псевдослучайных чисел; при пустом вводе \texttt{seed} генерируется автоматически и выводится на экран, чтобы запуск можно было повторить. Затем задаются частота вывода поколений и необходимость остановки при обнаружении цикла, после чего выводится начальное поколение. На рис.~\ref{fig:randinit} показано продолжение запуска с рис.~\ref{fig:start}: поле $20 \times 20$, плотность 30\,\%, $\text{seed} = 1$; в начальном поколении 118 живых клеток (ожидаемое значение $0{,}3 \cdot 400 = 120$).
+
+\begin{figure}[H]
+	\centering
+	\console[\consolemedium]{randinit}
+	\caption{Случайное заполнение поля (продолжение рис.~\ref{fig:start})}
+	\label{fig:randinit}
+\end{figure}
+
+При ручном вводе пользователь вводит строки поля сверху вниз: символы \texttt{\#} и \texttt{1} обозначают живую клетку, остальные --- мертвую; пустая строка завершает ввод, недостающие строки и столбцы считаются мертвыми (рис.~\ref{fig:manual}). В примере на поле $9 \times 9$ введен паттерн «крест».
+
+\begin{figure}[H]
+	\centering
+	\console[\consolemedium]{manual}
+	\caption{Ручной ввод начальной конфигурации}
+	\label{fig:manual}
+\end{figure}
+
+На рис.~\ref{fig:run} показано продолжение этого запуска: вывод поколений 1--3 и итог работы. Видно, что паттерн смещается вправо, как описано в разделе~\ref{sec:analysis} (рис.~\ref{fig:cross}). Так как остановка при обнаружении цикла не выбрана и за 3 итерации цикл не найден, итог содержит соответствующее сообщение.
+
+\begin{figure}[H]
+	\centering
+	\console[\consolemedium]{run}
+	\caption{Вывод поколений и итог работы (продолжение рис.~\ref{fig:manual})}
+	\label{fig:run}
+\end{figure}
+
+При обнаружении повторения конфигурации программа выводит поколение, на котором найден цикл, с предпериодом и периодом в заголовке, а затем итог работы (рис.~\ref{fig:cycle}). В примере одиночная клетка в центре поля $7 \times 7$ за 7 шагов обходит тор и возвращается в исходное положение: предпериод равен 0, период --- 7. Чтобы не выводить промежуточные поколения, задано $k = 100$; поколение, на котором найден цикл, выводится всегда.
+
+\begin{figure}[H]
+	\centering
+	\console[\consolemedium]{cycle}
+	\caption{Обнаружение цикла и итог работы}
+	\label{fig:cycle}
+\end{figure}
+
+Если цикл за заданное число итераций не найден, программа сообщает об этом (рис.~\ref{fig:nocycle}). Запуск выполнен на поле $20 \times 20$ со случайными начальными условиями (плотность 30\,\%, $\text{seed} = 1$), 100\,000 итераций и $k = 100\,000$, поэтому выведены только начальное (на рисунке не показано) и последнее поколения.
+
+\begin{figure}[H]
+	\centering
+	\console[\consolemedium]{nocycle}
+	\caption{Итог работы, цикл не обнаружен (фрагмент: последнее поколение и итог)}
+	\label{fig:nocycle}
+\end{figure}
+
+% =====================================================================
+\newpage
+\section*{Заключение}
+\phantomsection
+\addcontentsline{toc}{section}{Заключение}
+
+В ходе выполнения лабораторной работы был реализован двумерный клеточный автомат с окрестностью фон Неймана, тороидальными граничными условиями и правилом перехода 20\,874\,436. Программа позволяет задавать ширину поля и количество итераций, выбирать случайные (с заданной плотностью и \texttt{seed}) или ручные начальные условия, а также автоматически обнаруживает цикл и вычисляет его предпериод и период.
+
+Анализ показал, что правило анизотропно: рождение клетки вызывает только западный сосед, поэтому все структуры смещаются вправо, а одиночная клетка является глайдером с периодом $n$ на торе. Конфигурации, занимающие одну строку, эволюционируют по одномерному элементарному правилу 120. Случайные конфигурации независимо от начальной плотности выходят на режим с долей живых клеток $\approx 0{,}2$, но остаются неупорядоченными; длины циклов быстро растут с размером поля, а возмущение одной клетки распространяется по полю. По классификации Вольфрама автомат отнесен к классу III (хаотическое поведение).
+
+\subsection*{Достоинства реализации}
+
+\begin{itemize}
+	\item Логика автомата (класс \texttt{CellularAutomaton}) отделена от ввода-вывода (класс \texttt{Main}), поэтому автомат можно использовать и тестировать без консоли.
+	\item Синхронное обновление реализовано обменом ссылок на два массива без копирования, сложность шага --- $O(n^2)$.
+	\item Обнаружение цикла точное: конфигурации сравниваются целиком (\texttt{BitSet}), без риска ложных совпадений, характерного для хранения только хеш-значений.
+	\item Ввод устойчив к ошибкам: некорректные значения и выход за диапазон приводят к повторному запросу, а при окончании ввода используются значения по умолчанию.
+	\item Случайные начальные условия воспроизводимы благодаря \texttt{seed}, который печатается, даже если был сгенерирован автоматически.
+\end{itemize}
+
+\subsection*{Недостатки реализации}
+
+\begin{itemize}
+	\item Хранение всех конфигураций требует памяти, пропорциональной числу шагов: при поле $100 \times 100$ и $10^5$ шагах это порядка сотен мегабайт.
+	\item Номер правила и порядок клеток в индексе заданы в коде; изменить их без перекомпиляции нельзя.
+	\item Поле выводится символами в консоль, поэтому большие поля ($n > 60$) неудобно просматривать, а графики (например, доли живых клеток) программа не строит.
+	\item Поддерживается только квадратное поле.
+\end{itemize}
+
+\subsection*{Масштабирование}
+
+\begin{itemize}
+	\item Поиск цикла алгоритмом Брента или Флойда, требующим $O(1)$ дополнительной памяти, что позволит исследовать периоды на больших полях.
+	\item Ввод номера правила и порядка клеток в индексе пользователем, поддержка прямоугольных полей и окрестности Мура.
+	\item Графический интерфейс с анимацией и построением графиков статистики (доли живых клеток, расстояния Хэмминга).
+	\item Параллельное вычисление шага для больших полей (строки поля обрабатываются независимо).
+\end{itemize}
+
+% TODO: указать среду разработки и ее версию (в проекте есть папка .idea, вероятно IntelliJ IDEA)
+Работа выполнена в среде IntelliJ IDEA на языке Java (JDK 26). Код программы представлен в Приложении.
+
+% =====================================================================
+\newpage
+\phantomsection
+\addcontentsline{toc}{section}{Список литературы}
+\begin{thebibliography}{9}
+	\bibitem{tema} Секция «Телематика». \url{https://tema.spbstu.ru/algorithm/}. (Дата обращения: 24.10.2026).
+	\bibitem{toffoli} Тоффоли Т., Марголус Н. Машины клеточных автоматов. --- М.: Мир, 1991. --- 280 с.
+	\bibitem{wolfram1984} Wolfram S. Universality and complexity in cellular automata // Physica D: Nonlinear Phenomena. --- 1984. --- Vol.~10, no.~1--2. --- P.~1--35.
+	\bibitem{wolfram2002} Wolfram S. A New Kind of Science. --- Champaign: Wolfram Media, 2002. --- 1197 p.
+\end{thebibliography}
+
+% =====================================================================
+\newpage
+\section*{Приложение. Исходный код программы}
+\phantomsection
+\addcontentsline{toc}{section}{Приложение. Исходный код программы}
+
+\subsection*{Класс CellularAutomaton}
+\lstinputlisting[caption={CellularAutomaton.java}]{../src/main/java/ru/spbstu/khramov/CellularAutomaton.java}
+
+\subsection*{Класс Main}
+\lstinputlisting[caption={Main.java}]{../src/main/java/ru/spbstu/khramov/Main.java}
+
+\end{document}
