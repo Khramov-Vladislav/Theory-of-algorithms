@@ -97,7 +97,7 @@
 \lstdefinestyle{console}{
 	language={}, numbers=none, frame=single, rulecolor=\color{gray!50},
 	backgroundcolor=\color{gray!5}, framesep=2pt, xleftmargin=2pt, xrightmargin=2pt,
-	breaklines=false, columns=fullflexible, keepspaces=true
+	breaklines=false, columns=fullflexible, keepspaces=true, showlines=true
 }
 \newcommand{\consolemedium}{\fontsize{9}{10.5}\selectfont\ttfamily}
 \newcommand{\consolesmall}{\fontsize{7}{7.35}\selectfont\ttfamily}
@@ -453,15 +453,15 @@
 	\item \texttt{CellularAutomaton} --- логика автомата: хранение поля, правило перехода, шаг эволюции, начальные условия, обнаружение цикла;
 	\item \texttt{Main} --- консольный интерфейс: ввод параметров с проверкой, выбор начальных условий, вывод поля и итогов.
 \end{itemize}
-Полный исходный код приведен в Приложении.
+Полный исходный код приведен в \hyperref[app:code]{Приложении}.
 
 \subsection{Класс CellularAutomaton}
 
 Класс содержит следующие поля:
 \begin{itemize}
 	\item \texttt{long rule} --- номер правила;
-	\item \texttt{int size} --- ширина (и высота) квадратного поля;
-	\item \texttt{boolean[][] cells} --- текущее поколение, \texttt{cells[row][col]}, \texttt{true} --- живая клетка;
+	\item \texttt{int size} --- ширина квадратного поля;
+	\item \texttt{boolean[][] cells} --- текущее поколение;
 	\item \texttt{boolean[][] next} --- буфер для следующего поколения;
 	\item \texttt{int generation} --- номер текущего поколения;
 	\item \texttt{Map<BitSet, Integer> history} --- все встреченные конфигурации и номера поколений, в которых они впервые появились;
@@ -472,9 +472,9 @@
 
 Конструктор вычисляет номер правила по формуле из задания и создает два пустых поля заданного размера. Приведение первого множителя к \texttt{long} гарантирует, что все произведение вычисляется в 64-битной арифметике без переполнения. Код представлен в листинге~\ref{lst:ctor}.
 
-Входные данные: \texttt{int numberOption, constValue, year, month, day} --- параметры формулы, \texttt{int size} --- размер поля.
+Входные данные: \texttt{int numberOption, constValue, year, month, day} --- номер варианта, константа 11 и дата рождения из формулы номера правила; \texttt{int size} --- ширина поля.
 
-Выходные данные: объект автомата с пустым полем.
+Выходные данные: созданный объект автомата с вычисленным номером правила и пустым полем (все клетки мертвые, номер поколения 0).
 
 \begin{lstlisting}[caption={Конструктор класса CellularAutomaton}, label={lst:ctor}]
 public CellularAutomaton(int numberOption, int constValue, int year, int month, int day, int size) {
@@ -485,19 +485,15 @@ public CellularAutomaton(int numberOption, int constValue, int year, int month, 
 }
 \end{lstlisting}
 
-\subsubsection*{Методы bit() и newState()}
+\subsubsection*{Метод bit()}
 
-Метод \texttt{bit} возвращает $k$-й бит числа $x$: число сдвигается вправо на $k$ разрядов, после чего побитовым «И» с единицей выделяется младший бит. Метод \texttt{newState} применяет его к номеру правила и возвращает новое состояние клетки по индексу окрестности. Код представлен в листинге~\ref{lst:bit}.
+Метод \texttt{bit} возвращает $k$-й бит числа $x$: число сдвигается вправо на $k$ разрядов, после чего побитовым «И» с единицей выделяется младший бит. Это вычисление $\lfloor x / 2^k \rfloor \bmod 2$ из раздела~\ref{sec:rule}. Код представлен в листинге~\ref{lst:bit}.
 
-Входные данные: \texttt{long x} --- число, \texttt{int k} --- номер бита; для \texttt{newState} --- индекс окрестности \texttt{idx} ($0..31$).
+Входные данные: \texttt{long x} --- число, \texttt{int k} --- номер бита ($0 \le k \le 63$).
 
-Выходные данные: 0 или 1.
+Выходные данные: значение бита, 0 или 1.
 
-\begin{lstlisting}[caption={Методы bit() и newState()}, label={lst:bit}]
-int newState(int idx) {
-	return bit(rule, idx);
-}
-
+\begin{lstlisting}[caption={Метод bit()}, label={lst:bit}]
 static int bit(long x, int k) {
 	long shifted = x >> k;
 	long lastBit = shifted & 1;
@@ -505,19 +501,43 @@ static int bit(long x, int k) {
 }
 \end{lstlisting}
 
-\subsubsection*{Методы wrap() и getWrapped()}
+\subsubsection*{Метод newState()}
 
-Метод \texttt{wrap} реализует тороидальные граничные условия: переводит любую координату в диапазон $0..size-1$. Метод \texttt{getWrapped} возвращает состояние клетки с учетом тора. Код представлен в листинге~\ref{lst:wrap}.
+Метод \texttt{newState} применяет \texttt{bit} к номеру правила, то есть вычисляет значение функции перехода $f$ на наборе с номером \texttt{idx}. Код представлен в листинге~\ref{lst:newstate}.
 
-Входные данные: координата \texttt{coord} (для \texttt{getWrapped} --- \texttt{row, col}), возможно, вышедшая за край поля.
+Входные данные: \texttt{int idx} --- индекс окрестности ($0..31$).
 
-Выходные данные: координата внутри поля; состояние клетки.
+Выходные данные: новое состояние клетки, 0 или 1.
 
-\begin{lstlisting}[caption={Методы wrap() и getWrapped()}, label={lst:wrap}]
+\begin{lstlisting}[caption={Метод newState()}, label={lst:newstate}]
+int newState(int idx) {
+	return bit(rule, idx);
+}
+\end{lstlisting}
+
+\subsubsection*{Метод wrap()}
+
+Метод \texttt{wrap} реализует тороидальные граничные условия (раздел~\ref{sec:torus}): переводит любую координату в диапазон $0..size-1$. Код представлен в листинге~\ref{lst:wrap}.
+
+Входные данные: \texttt{int coord} --- координата (строка или столбец), возможно, вышедшая за край поля.
+
+Выходные данные: координата $coord \bmod size$ в диапазоне $0..size-1$.
+
+\begin{lstlisting}[caption={Метод wrap()}, label={lst:wrap}]
 private int wrap(int coord) {
 	return (coord % size + size) % size;
 }
+\end{lstlisting}
 
+\subsubsection*{Метод getWrapped()}
+
+Метод \texttt{getWrapped} возвращает состояние клетки, приводя обе координаты методом \texttt{wrap}. Код представлен в листинге~\ref{lst:getwrapped}.
+
+Входные данные: \texttt{int row, col} --- координаты клетки, возможно, вышедшие за край поля.
+
+Выходные данные: состояние клетки \texttt{cells[wrap(row)][wrap(col)]} (\texttt{true} --- живая).
+
+\begin{lstlisting}[caption={Метод getWrapped()}, label={lst:getwrapped}]
 private boolean getWrapped(int row, int col) {
 	return cells[wrap(row)][wrap(col)];
 }
@@ -529,7 +549,7 @@ private boolean getWrapped(int row, int col) {
 
 Входные данные: \texttt{int row, col} --- координаты клетки.
 
-Выходные данные: индекс окрестности $0..31$.
+Выходные данные: индекс окрестности $idx = 16C + 8N + 4E + 2W + S$ в диапазоне $0..31$.
 
 \begin{lstlisting}[caption={Метод neighborhoodIndex()}, label={lst:index}]
 int neighborhoodIndex(int row, int col) {
@@ -542,13 +562,27 @@ int neighborhoodIndex(int row, int col) {
 }
 \end{lstlisting}
 
+\subsubsection*{Метод toBit()}
+
+Вспомогательный метод \texttt{toBit} переводит \texttt{boolean} в число: \texttt{true} $\to$ 1, \texttt{false} $\to$ 0. Код представлен в листинге~\ref{lst:tobit}.
+
+Входные данные: \texttt{boolean value} --- состояние клетки.
+
+Выходные данные: 1 или 0.
+
+\begin{lstlisting}[caption={Метод toBit()}, label={lst:tobit}]
+private static int toBit(boolean value) {
+	return value ? 1 : 0;
+}
+\end{lstlisting}
+
 \subsubsection*{Метод step()}
 
 Метод выполняет один шаг эволюции. Для каждой клетки вычисляется индекс окрестности по текущему полю \texttt{cells}, новое состояние записывается в буфер \texttt{next}. После обработки всех клеток ссылки на массивы меняются местами: новое поколение становится текущим, а старый массив используется как буфер на следующем шаге. Копирования массивов при этом не происходит. Перед первым шагом в историю записывается начальная конфигурация, а после каждого шага выполняется проверка на повторение конфигурации. Сложность одного шага --- $O(n^2)$. Код представлен в листинге~\ref{lst:step}.
 
-Входные данные: текущее поле.
+Входные данные: используется текущее поле \texttt{cells}.
 
-Выходные данные: поле следующего поколения, увеличенный номер поколения.
+Выходные данные: поле \texttt{cells} заменяется следующим поколением, номер поколения \texttt{generation} увеличивается на 1, при повторении конфигурации заполняются поля \texttt{cycleFound}, \texttt{transientLength}, \texttt{period}.
 
 \begin{lstlisting}[caption={Метод step()}, label={lst:step}]
 public void step() {
@@ -572,29 +606,15 @@ public void step() {
 }
 \end{lstlisting}
 
-\subsubsection*{Методы checkCycle() и snapshot()}
+\subsubsection*{Метод snapshot()}
 
-Для обнаружения цикла все встреченные конфигурации хранятся в хеш-таблице \texttt{history} (конфигурация $\to$ номер поколения). Метод \texttt{snapshot} упаковывает поле в \texttt{BitSet}: клетка $(row, col)$ соответствует биту $row \cdot size + col$, т.\,е. на клетку тратится один бит. Методы \texttt{equals} и \texttt{hashCode} класса \texttt{BitSet} сравнивают содержимое, поэтому его можно использовать как ключ хеш-таблицы, в отличие от массива \texttt{boolean[][]}.
+Метод \texttt{snapshot} упаковывает поле в \texttt{BitSet}: клетка $(row, col)$ соответствует биту $row \cdot size + col$, т.\,е. на клетку тратится один бит. Методы \texttt{equals} и \texttt{hashCode} класса \texttt{BitSet} сравнивают содержимое, поэтому его можно использовать как ключ хеш-таблицы, в отличие от массива \texttt{boolean[][]}. Код представлен в листинге~\ref{lst:snapshot}.
 
-Метод \texttt{checkCycle} пытается добавить текущую конфигурацию в таблицу методом \texttt{putIfAbsent}. Если такая конфигурация уже встречалась в поколении $prev$, метод возвращает $prev$, и тогда предпериод равен $prev$, а период --- $generation - prev$. После обнаружения цикла конфигурации больше не сохраняются. Сравнение конфигураций точное (без риска коллизий), а затраты памяти составляют $O(T \cdot n^2 / 8)$ байт, где $T$ --- число выполненных шагов. Код представлен в листинге~\ref{lst:cycle}.
+Входные данные: используется текущее поле \texttt{cells}.
 
-Входные данные: текущее поле, номер поколения.
+Выходные данные: \texttt{BitSet} из $size^2$ битов, в котором установлены биты живых клеток.
 
-Выходные данные: признак \texttt{cycleFound}, предпериод \texttt{transientLength} и период \texttt{period}.
-
-\begin{lstlisting}[caption={Методы checkCycle() и snapshot()}, label={lst:cycle}]
-private void checkCycle() {
-	if (cycleFound) {
-		return;
-	}
-	Integer prev = history.putIfAbsent(snapshot(), generation);
-	if (prev != null) {
-		cycleFound = true;
-		transientLength = prev;
-		period = generation - prev;
-	}
-}
-
+\begin{lstlisting}[caption={Метод snapshot()}, label={lst:snapshot}]
 private BitSet snapshot() {
 	BitSet bits = new BitSet(size * size);
 	for (int row = 0; row < size; row++) {
@@ -608,13 +628,35 @@ private BitSet snapshot() {
 }
 \end{lstlisting}
 
+\subsubsection*{Метод checkCycle()}
+
+Для обнаружения цикла все встреченные конфигурации хранятся в хеш-таблице \texttt{history} (конфигурация $\to$ номер поколения). Метод \texttt{checkCycle} пытается добавить текущую конфигурацию в таблицу методом \texttt{putIfAbsent}. Если такая конфигурация уже встречалась в поколении $prev$, метод возвращает $prev$, и тогда предпериод равен $prev$, а период --- $generation - prev$. После обнаружения цикла конфигурации больше не сохраняются. Сравнение конфигураций точное (без риска коллизий), а затраты памяти составляют $O(T \cdot n^2 / 8)$ байт, где $T$ --- число выполненных шагов. Код представлен в листинге~\ref{lst:cycle}.
+
+Входные данные: используются текущее поле, номер поколения \texttt{generation} и таблица \texttt{history}.
+
+Выходные данные: текущая конфигурация добавляется в \texttt{history}, а при повторении устанавливаются признак \texttt{cycleFound}, предпериод \texttt{transientLength} и период \texttt{period}.
+
+\begin{lstlisting}[caption={Метод checkCycle()}, label={lst:cycle}]
+private void checkCycle() {
+	if (cycleFound) {
+		return;
+	}
+	Integer prev = history.putIfAbsent(snapshot(), generation);
+	if (prev != null) {
+		cycleFound = true;
+		transientLength = prev;
+		period = generation - prev;
+	}
+}
+\end{lstlisting}
+
 \subsubsection*{Метод randomize()}
 
 Метод заполняет поле случайным образом: каждая клетка становится живой с вероятностью \texttt{density}, независимо от остальных. Для этого используется равномерно распределенное число из $[0, 1)$, возвращаемое \texttt{Random.nextDouble()}: оно меньше \texttt{density} ровно с вероятностью \texttt{density}. Ожидаемое число живых клеток равно $density \cdot n^2$. Генератор псевдослучайных чисел инициализируется заданным значением \texttt{seed}, поэтому одинаковый \texttt{seed} всегда дает одинаковое поле, что позволяет воспроизводить эксперименты. Код представлен в листинге~\ref{lst:random}.
 
 Входные данные: \texttt{double density} --- плотность живых клеток ($0..1$), \texttt{long seed} --- начальное значение генератора.
 
-Выходные данные: случайно заполненное поле.
+Выходные данные: поле \texttt{cells} заполняется случайно.
 
 \begin{lstlisting}[caption={Метод randomize()}, label={lst:random}]
 public void randomize(double density, long seed) {
@@ -627,15 +669,126 @@ public void randomize(double density, long seed) {
 }
 \end{lstlisting}
 
-Также класс содержит методы \texttt{getCell} и \texttt{setCell} (чтение и запись клетки), \texttt{clear} (очистка поля), \texttt{population} (число живых клеток) и методы доступа \texttt{getSize}, \texttt{getGeneration}, \texttt{isCycleFound}, \texttt{getTransientLength}, \texttt{getPeriod}.
+\subsubsection*{Метод getCell()}
+
+Метод возвращает состояние клетки. Код представлен в листинге~\ref{lst:getcell}.
+
+Входные данные: \texttt{int row, col} --- координаты клетки в диапазоне $0..size-1$.
+
+Выходные данные: \texttt{true}, если клетка живая.
+
+\begin{lstlisting}[caption={Метод getCell()}, label={lst:getcell}]
+public boolean getCell(int row, int col) {
+	return cells[row][col];
+}
+\end{lstlisting}
+
+\subsubsection*{Метод setCell()}
+
+Метод задает состояние клетки, используется при ручном вводе и при размещении клетки в центре поля. Код представлен в листинге~\ref{lst:setcell}.
+
+Входные данные: \texttt{int row, col} --- координаты клетки, \texttt{boolean value} --- новое состояние.
+
+Выходные данные: изменяется клетка поля.
+
+\begin{lstlisting}[caption={Метод setCell()}, label={lst:setcell}]
+public void setCell(int row, int col, boolean value) {
+	cells[row][col] = value;
+}
+\end{lstlisting}
+
+\subsubsection*{Метод clear()}
+
+Метод делает все клетки поля мертвыми. Код представлен в листинге~\ref{lst:clear}.
+
+Входные данные: текущее поле \texttt{cells}.
+
+Выходные данные: поле очищено.
+
+\begin{lstlisting}[caption={Метод clear()}, label={lst:clear}]
+public void clear() {
+	for (int row = 0; row < size; row++) {
+		for (int col = 0; col < size; col++) {
+			cells[row][col] = false;
+		}
+	}
+}
+\end{lstlisting}
+
+\subsubsection*{Метод population()}
+
+Метод подсчитывает число живых клеток поля. Код представлен в листинге~\ref{lst:population}.
+
+Входные данные: текущее поле \texttt{cells}.
+
+Выходные данные: число живых клеток от 0 до $size^2$.
+
+\begin{lstlisting}[caption={Метод population()}, label={lst:population}]
+public int population() {
+	int count = 0;
+	for (int row = 0; row < size; row++) {
+		for (int col = 0; col < size; col++) {
+			if (cells[row][col]) {
+				count++;
+			}
+		}
+	}
+	return count;
+}
+\end{lstlisting}
+
+\subsubsection*{Методы доступа}
+
+Методы доступа возвращают значения закрытых полей класса (листинги~\ref{lst:getsize}--\ref{lst:getperiod}):
+\begin{itemize}
+	\item \texttt{getSize} --- ширина поля \texttt{size};
+	\item \texttt{getGeneration} --- номер текущего поколения \texttt{generation};
+	\item \texttt{isCycleFound} --- признак найденного цикла \texttt{cycleFound};
+	\item \texttt{getTransientLength} --- предпериод \texttt{transientLength} (0, если цикл не найден);
+	\item \texttt{getPeriod} --- период \texttt{period} (0, если цикл не найден).
+\end{itemize}
+
+\begin{lstlisting}[caption={Метод getSize()}, label={lst:getsize}]
+public int getSize() {
+	return size;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Метод getGeneration()}, label={lst:getgeneration}]
+public int getGeneration() {
+	return generation;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Метод isCycleFound()}, label={lst:iscyclefound}]
+public boolean isCycleFound() {
+	return cycleFound;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Метод getTransientLength()}, label={lst:gettransient}]
+public int getTransientLength() {
+	return transientLength;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Метод getPeriod()}, label={lst:getperiod}]
+public int getPeriod() {
+	return period;
+}
+\end{lstlisting}
 
 \subsection{Класс Main}
 
-Класс \texttt{Main} реализует консольный интерфейс программы. Ввод и вывод выполняются с помощью класса \texttt{java.lang.IO}.
+Класс \texttt{Main} реализует консольный интерфейс программы.
 
 \subsubsection*{Метод main()}
 
 Метод запрашивает у пользователя ширину поля ($3..100$), количество итераций ($1..100\,000$), начальные условия, шаг вывода $k$ (печатается каждое $k$-е поколение) и необходимость остановки при обнаружении цикла. Затем выполняется заданное число итераций; печатаются начальное поле, каждое $k$-е поколение, последнее поколение и поколение, на котором обнаружен цикл. В конце выводится итог работы. Код представлен в листинге~\ref{lst:main}.
+
+Входные данные: значения вводятся пользователем.
+
+Выходные данные: поколения и итог работы выводятся в консоль.
 
 Минимальная ширина поля равна 3, так как при $n \le 2$ на торе северный и южный (западный и восточный) соседи клетки совпадают, и окрестность фон Неймана вырождается.
 
@@ -657,15 +810,15 @@ for (int i = 1; i <= iterations; i++) {
 printSummary(automaton);
 \end{lstlisting}
 
-\subsubsection*{Методы readInt() и readLine()}
+\subsubsection*{Метод readInt()}
 
-Метод \texttt{readInt} запрашивает целое число до тех пор, пока не будет введено корректное значение из диапазона $[min, max]$. При пустом вводе возвращается значение по умолчанию, которое показывается в подсказке в квадратных скобках. Ввод читается целой строкой и преобразуется в число методом \texttt{Integer.parseInt}; некорректный ввод перехватывается через исключение \texttt{NumberFormatException}. Метод \texttt{readLine} читает строку и при окончании ввода (EOF) возвращает пустую строку. Код представлен в листинге~\ref{lst:readint}.
+Метод \texttt{readInt} запрашивает целое число до тех пор, пока не будет введено корректное значение из диапазона $[min, max]$. При пустом вводе возвращается значение по умолчанию, которое показывается в подсказке в квадратных скобках. Ввод читается целой строкой и преобразуется в число методом \texttt{Integer.parseInt}; некорректный ввод перехватывается через исключение \texttt{NumberFormatException}. Код представлен в листинге~\ref{lst:readint}.
 
-Входные данные: \texttt{prompt} --- подсказка, \texttt{min}, \texttt{max} --- границы диапазона, \texttt{def} --- значение по умолчанию.
+Входные данные: \texttt{String prompt} --- подсказка, \texttt{int min, max} --- границы диапазона, \texttt{int def} --- значение по умолчанию.
 
 Выходные данные: введенное число из $[min, max]$ или \texttt{def}.
 
-\begin{lstlisting}[caption={Методы readInt() и readLine()}, label={lst:readint}]
+\begin{lstlisting}[caption={Метод readInt()}, label={lst:readint}]
 static int readInt(String prompt, int min, int max, int def) {
 	while (true) {
 		String s = readLine(prompt + " [" + def + "]: ");
@@ -682,7 +835,17 @@ static int readInt(String prompt, int min, int max, int def) {
 		println("  Введите целое число от " + min + " до " + max + ".");
 	}
 }
+\end{lstlisting}
 
+\subsubsection*{Метод readLine()}
+
+Метод \texttt{readLine} выводит подсказку, читает строку и удаляет пробелы по краям. При окончании ввода (EOF) метод \texttt{readln} возвращает \texttt{null}, и тогда возвращается пустая строка. Код представлен в листинге~\ref{lst:readline}.
+
+Входные данные: \texttt{String prompt} --- подсказка.
+
+Выходные данные: введенная строка без пробелов по краям или пустая строка.
+
+\begin{lstlisting}[caption={Метод readLine()}, label={lst:readline}]
 static String readLine(String prompt) {
 	String s = readln(prompt);
 	return s == null ? "" : s.trim();
@@ -691,27 +854,83 @@ static String readLine(String prompt) {
 
 \subsubsection*{Метод initField()}
 
-Метод выводит меню начальных условий и заполняет поле выбранным способом:
+Метод выводит меню начальных условий и заполняет поле выбранным способом (листинг~\ref{lst:init}):
 \begin{enumerate}
-	\item случайно --- запрашиваются плотность живых клеток в процентах и \texttt{seed}. Если \texttt{seed} не введен, он генерируется из текущего времени и печатается, чтобы эксперимент можно было повторить (метод \texttt{readSeed});
+	\item случайно --- запрашиваются плотность живых клеток в процентах и \texttt{seed}, после чего вызывается метод \texttt{randomize};
 	\item вручную --- метод \texttt{readManual};
-	\item одна живая клетка в центре поля;
+	\item одна живая клетка в центре поля, клетка $(\lfloor size/2 \rfloor, \lfloor size/2 \rfloor)$;
 	\item пустое поле.
 \end{enumerate}
 
+Входные данные: \texttt{CellularAutomaton automaton} --- автомат, поле которого заполняется; номер способа вводится пользователем.
+
+Выходные данные: поле автомата заполнено выбранным способом.
+
+\begin{lstlisting}[caption={Метод initField()}, label={lst:init}]
+static void initField(CellularAutomaton automaton) {
+	println();
+	println("Начальные условия:");
+	println("  1 - случайно");
+	println("  2 - вручную");
+	println("  3 - одна клетка в центре");
+	println("  4 - пустое поле");
+	int mode = readInt("Выбор", 1, 4, 1);
+
+	switch (mode) {
+		case 1 -> {
+			int percent = readInt("Плотность живых клеток, % (0...100)", 0, 100, 50);
+			long seed = readSeed();
+			automaton.randomize(percent / 100.0, seed);
+		}
+		case 2 -> readManual(automaton);
+		case 3 -> {
+			int center = automaton.getSize() / 2;
+			automaton.setCell(center, center, true);
+		}
+		default -> automaton.clear();
+	}
+}
+\end{lstlisting}
+
+\subsubsection*{Метод readSeed()}
+
+Метод запрашивает начальное значение генератора случайных чисел до тех пор, пока не будет введено целое число или пустая строка. Если \texttt{seed} не введен, он берется из текущего времени (\texttt{System.nanoTime()}) и печатается, чтобы эксперимент можно было повторить. Код представлен в листинге~\ref{lst:seed}.
+
+Входные данные: значение вводится пользователем.
+
+Выходные данные: \texttt{long} --- введенный или сгенерированный \texttt{seed}.
+
+\begin{lstlisting}[caption={Метод readSeed()}, label={lst:seed}]
+static long readSeed() {
+	while (true) {
+		String s = readLine("Seed (пусто = случайный): ");
+		if (s.isEmpty()) {
+			long seed = System.nanoTime();
+			println("Используется seed = " + seed);
+			return seed;
+		}
+		try {
+			return Long.parseLong(s);
+		} catch (NumberFormatException e) {
+			println("  Введите целое число или оставьте пустым.");
+		}
+	}
+}
+\end{lstlisting}
+
 \subsubsection*{Метод readManual()}
 
-Метод реализует ручной ввод начальной конфигурации: пользователь вводит строки поля сверху вниз, символы \texttt{\#} и \texttt{1} обозначают живую клетку, любые другие --- мертвую. Строка короче ширины поля дополняется мертвыми клетками, лишние символы игнорируются, пустая строка завершает ввод (оставшиеся строки --- мертвые). Код представлен в листинге~\ref{lst:manual}.
+Метод реализует ручной ввод начальной конфигурации: пользователь вводит строки поля сверху вниз, символы \texttt{+} и \texttt{1} обозначают живую клетку, любые другие --- мертвую. Строка короче ширины поля дополняется мертвыми клетками, лишние символы игнорируются, пустая строка завершает ввод (оставшиеся строки --- мертвые). Код представлен в листинге~\ref{lst:manual}.
 
-Входные данные: автомат, поле которого заполняется.
+Входные данные: \texttt{CellularAutomaton automaton} --- автомат, поле которого заполняется; строки поля вводятся пользователем.
 
-Выходные данные: поле, заполненное по вводу пользователя.
+Выходные данные: поле автомата заполнено по вводу пользователя.
 
 \begin{lstlisting}[caption={Метод readManual()}, label={lst:manual}]
 static void readManual(CellularAutomaton automaton) {
 	int size = automaton.getSize();
 	println("Вводите строки поля сверху вниз (до " + size + " строк).");
-	println("Живая клетка: # или 1, мёртвая: . или 0. Пустая строка — закончить ввод.");
+	println("Живая клетка: + или 1, мёртвая: . или 0. Пустая строка — закончить ввод.");
 	automaton.clear();
 	for (int row = 0; row < size; row++) {
 		String line = readln(String.format("%3d> ", row));
@@ -720,15 +939,77 @@ static void readManual(CellularAutomaton automaton) {
 		}
 		for (int col = 0; col < Math.min(line.length(), size); col++) {
 			char ch = line.charAt(col);
-			automaton.setCell(row, col, ch == '#' || ch == '1');
+			automaton.setCell(row, col, ch == '+' || ch == '1');
 		}
 	}
 }
 \end{lstlisting}
 
-\subsubsection*{Методы вывода}
+\subsubsection*{Метод printField()}
 
-Метод \texttt{printField} печатает поле построчно: \texttt{\#} --- живая клетка, \texttt{.} --- мертвая. Метод \texttt{printGeneration} дополнительно печатает заголовок с номером поколения, числом живых клеток и, если цикл уже найден, предпериодом и периодом. Метод \texttt{printSummary} выводит итог: число выполненных итераций, число живых клеток, а также предпериод и период цикла либо сообщение о том, что цикл не обнаружен.
+Метод печатает поле построчно: \texttt{+} --- живая клетка, пробел --- мертвая. Код представлен в листинге~\ref{lst:printfield}.
+
+Входные данные: \texttt{CellularAutomaton automaton} --- автомат.
+
+Выходные данные: поле выводится в консоль.
+
+\begin{lstlisting}[caption={Метод printField()}, label={lst:printfield}]
+static void printField(CellularAutomaton automaton) {
+	for (int row = 0; row < automaton.getSize(); row++) {
+		for (int col = 0; col < automaton.getSize(); col++) {
+			print(automaton.getCell(row, col) ? "+ " : "  ");
+		}
+		println();
+	}
+	println();
+}
+\end{lstlisting}
+
+\subsubsection*{Метод printGeneration()}
+
+Метод печатает заголовок с номером поколения, числом живых клеток и, если цикл уже найден, предпериодом и периодом, а затем само поле методом \texttt{printField}. Код представлен в листинге~\ref{lst:printgen}.
+
+Входные данные: \texttt{CellularAutomaton automaton} --- автомат.
+
+Выходные данные: заголовок и поле выводятся в консоль.
+
+\begin{lstlisting}[caption={Метод printGeneration()}, label={lst:printgen}]
+static void printGeneration(CellularAutomaton automaton) {
+	String header = "Поколение " + automaton.getGeneration() + " | живых: " + automaton.population();
+	if (automaton.isCycleFound()) {
+		header += " | цикл: предпериод = " + automaton.getTransientLength() + ", период = " + automaton.getPeriod();
+	}
+	println(header);
+	printField(automaton);
+}
+\end{lstlisting}
+
+\subsubsection*{Метод printSummary()}
+
+Метод выводит итог: число выполненных итераций, число живых клеток, а также поколение, на котором найден цикл, предпериод и период либо сообщение о том, что цикл не обнаружен. Код представлен в листинге~\ref{lst:printsummary}.
+
+Входные данные: \texttt{CellularAutomaton automaton} --- автомат.
+
+Выходные данные: итог выводится в консоль.
+
+\begin{lstlisting}[caption={Метод printSummary()}, label={lst:printsummary}]
+static void printSummary(CellularAutomaton automaton) {
+	int size = automaton.getSize();
+	println("Итог");
+	println("Выполнено итераций: " + automaton.getGeneration());
+	println("Живых клеток: " + automaton.population() + " из " + size * size);
+	if (automaton.isCycleFound()) {
+		int t = automaton.getTransientLength();
+		int p = automaton.getPeriod();
+		println("Цикл найден на поколении " + (t + p));
+		println("Предпериод: " + t);
+		println("Период: " + p + (p == 1 ? " (неподвижная точка)" : ""));
+	} else {
+		println("Цикл за " + automaton.getGeneration() + " итераций не обнаружен.");
+	}
+}
+\end{lstlisting}
+
 
 % =====================================================================
 \newpage
@@ -762,9 +1043,9 @@ static void readManual(CellularAutomaton automaton) {
 	\begin{minipage}{0.3\textwidth}\centering\console{single_0}\end{minipage}
 	\begin{minipage}{0.3\textwidth}\centering\console{single_1}\end{minipage}
 	\begin{minipage}{0.3\textwidth}\centering\console{single_2}\end{minipage}\\[3mm]
-	\begin{minipage}{0.3\textwidth}\centering\console{single_3}\end{minipage}
-	\begin{minipage}{0.3\textwidth}\centering\console{single_4}\end{minipage}
-	\begin{minipage}{0.3\textwidth}\centering\console{single_7}\end{minipage}
+	\begin{minipage}{0.24\textwidth}\centering\console{single_3}\end{minipage}
+	\begin{minipage}{0.24\textwidth}\centering\console{single_4}\end{minipage}
+	\begin{minipage}{0.48\textwidth}\centering\console{single_7}\end{minipage}
 	\caption{Движение одиночной клетки на поле $7 \times 7$}
 	\label{fig:single}
 \end{figure}
@@ -987,7 +1268,7 @@ static void readManual(CellularAutomaton automaton) {
 	\label{fig:randinit}
 \end{figure}
 
-При ручном вводе пользователь вводит строки поля сверху вниз: символы \texttt{\#} и \texttt{1} обозначают живую клетку, остальные --- мертвую; пустая строка завершает ввод, недостающие строки и столбцы считаются мертвыми (рис.~\ref{fig:manual}). В примере на поле $9 \times 9$ введен паттерн «крест».
+При ручном вводе пользователь вводит строки поля сверху вниз: символы \texttt{+} и \texttt{1} обозначают живую клетку, остальные --- мертвую; пустая строка завершает ввод, недостающие строки и столбцы считаются мертвыми (рис.~\ref{fig:manual}). В примере на поле $9 \times 9$ введен паттерн «крест».
 
 \begin{figure}[H]
 	\centering
@@ -1079,6 +1360,7 @@ static void readManual(CellularAutomaton automaton) {
 \newpage
 \section*{Приложение. Исходный код программы}
 \phantomsection
+\label{app:code}
 \addcontentsline{toc}{section}{Приложение. Исходный код программы}
 
 \subsection*{Класс CellularAutomaton}
