@@ -1,0 +1,9 @@
+### Mac OS ###
+.DS_Store
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+
+### Примеры чужих отчетов ###
+example/
